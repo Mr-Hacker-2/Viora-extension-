@@ -25,12 +25,38 @@ pip install -r requirements.txt
 python main.py
 ```
 
-On first run it'll prompt for an API key. This is wired to OpenRouter by
-default (`config.py` → `api_base`), so any vision-capable model works —
-just get a key at https://openrouter.ai and paste it in. If you'd rather
-call the Anthropic or OpenAI API directly, change `api_base` and the
-request body in `agent.py`'s `call_llm()` to match their format — it's a
-small change, the rest of the code doesn't care which backend answers.
+By default, DeskViora connects to a local OpenAI-compatible NIM server at
+`http://localhost:8000/v1/chat/completions`, with model
+`wan2.2-animate-2-14b`. No API key is required for local NIM.
+
+Start the NIM server on the host first:
+
+```bash
+export LOCAL_NIM_CACHE=~/.cache/nim
+mkdir -p "$LOCAL_NIM_CACHE"
+chmod 777 "$LOCAL_NIM_CACHE"
+docker run -it --rm --name=nim-server \
+  --runtime=nvidia --gpus all \
+  -p 8000:8000 \
+  -v "$LOCAL_NIM_CACHE:/opt/nim/.cache/" \
+  nvcr.io/nim/wan-ai/wan2.2-animate-2-14b:latest
+```
+
+The container must expose an OpenAI-compatible `/v1/chat/completions`
+endpoint and return a chat response containing `choices[0].message.content`.
+The selected model must accept the screenshot image sent by the agent. Verify
+the model identifier with `http://localhost:8000/v1/models` if the container
+uses a different name.
+
+For a compatible remote provider, enter its key in Settings and override the
+connection with environment variables before starting the app:
+
+```bash
+export VIORA_API_BASE=https://example.invalid/v1/chat/completions
+export VIORA_MODEL=your-vision-model
+export VIORA_API_KEY=your-key
+python main.py
+```
 
 ## Building the .exe
 

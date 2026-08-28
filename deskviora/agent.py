@@ -114,14 +114,12 @@ def get_round_cap(goal: str) -> int:
 
 def call_llm(messages: list) -> str:
     cfg = config.load()
-    if not cfg.get("api_key"):
-        raise RuntimeError("No API key set. Open Settings and add your OpenRouter (or compatible) API key.")
+    headers = {"Content-Type": "application/json"}
+    if cfg.get("api_key"):
+        headers["Authorization"] = f"Bearer {cfg['api_key']}"
     resp = requests.post(
         cfg["api_base"],
-        headers={
-            "Authorization": f"Bearer {cfg['api_key']}",
-            "Content-Type": "application/json",
-        },
+        headers=headers,
         json={
             "model": cfg["model"],
             "max_tokens": 2000,

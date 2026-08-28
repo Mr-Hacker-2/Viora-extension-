@@ -84,6 +84,24 @@ Viora should now appear in your Edge extensions list and toolbar.
 edge://extensions/  →  You should see Viora listed and active ✓
 ```
 
+## Local NIM Brain
+
+The `viora-extension-6-1-😎-Best-VR.zip` build is configured to use a local
+OpenAI-compatible NIM server by default:
+
+```bash
+export LOCAL_NIM_CACHE=~/.cache/nim
+mkdir -p "$LOCAL_NIM_CACHE"
+chmod 777 "$LOCAL_NIM_CACHE"
+docker run -it --rm --name=nim-server \
+   --runtime=nvidia --gpus all -p 8000:8000 \
+   -v "$LOCAL_NIM_CACHE:/opt/nim/.cache/" \
+   nvcr.io/nim/wan-ai/wan2.2-animate-2-14b:latest
+```
+
+Load the ZIP in Edge after starting the container. The server must provide
+`/v1/chat/completions` and accept the screenshot image sent by Viora.
+
 ---
 
 ## 📦 Model Pack Overview

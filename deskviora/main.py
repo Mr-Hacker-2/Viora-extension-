@@ -67,8 +67,8 @@ class App(tk.Tk):
         self.after(150, self.poll_queue)
 
         cfg = config.load()
-        if not cfg.get("api_key"):
-            self.after(300, self.open_settings)
+        if cfg.get("api_base", "").startswith("http://localhost") and not cfg.get("api_key"):
+            self.append_log("Using local NIM server without an API key.")
 
     def append_log(self, text: str):
         self.log.config(state="normal")
@@ -93,10 +93,6 @@ class App(tk.Tk):
         if not goal:
             return
         cfg = config.load()
-        if not cfg.get("api_key"):
-            messagebox.showwarning("API key needed", "Add your API key in Settings first.")
-            self.open_settings()
-            return
         self.append_log(f"\n> {goal}")
         self.entry.delete(0, "end")
         stop_event.clear()
@@ -112,7 +108,7 @@ class App(tk.Tk):
     def open_settings(self):
         cfg = config.load()
         key = simpledialog.askstring(
-            "Settings", "API key (OpenRouter or compatible):",
+            "Settings", "API key (leave blank for local NIM):",
             initialvalue=cfg.get("api_key", ""), show="*"
         )
         if key is not None:

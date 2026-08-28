@@ -1,8 +1,7 @@
 """
 Local settings storage for DeskViora.
-Keeps the API key and a couple of preferences in a small JSON file next to
-the executable (or in the user's home folder if that's not writable), so
-the person only has to enter their key once.
+Keeps the model connection and a couple of preferences in a small JSON file
+next to the executable (or in the user's home folder if that's not writable).
 """
 
 import json
@@ -36,10 +35,8 @@ CONFIG_PATH = os.path.join(_config_dir(), "settings.json")
 
 DEFAULTS = {
     "api_key": "",
-    # Any vision-capable model on OpenRouter works. Swap this for a direct
-    # Anthropic/OpenAI key + model if you'd rather not go through OpenRouter.
-    "model": "anthropic/claude-sonnet-4.5",
-    "api_base": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "wan2.2-animate-2-14b",
+    "api_base": "http://localhost:8000/v1/chat/completions",
     "screenshot_scale": 1.0,   # downscale screenshots before sending, for cost/speed
     "confirm_before_typing_sensitive": True,
 }
@@ -52,10 +49,22 @@ def load() -> dict:
                 data = json.load(f)
             merged = dict(DEFAULTS)
             merged.update(data)
-            return merged
+            if data.get("api_base") == "https://openrouter.ai/api/v1/chat/completions":
+                merged["api_base"] = DEFAULTS["api_base"]
+            if data.get("model") == "anthropic/claude-sonnet-4.5":
+                merged["model"] = DEFAULTS["model"]
+            return _apply_environment(merged)
         except Exception:
             pass
-    return dict(DEFAULTS)
+    return _apply_environment(dict(DEFAULTS))
+
+
+def _apply_environment(cfg: dict) -> dict:
+    """Allow a packaged app to select a different compatible server."""
+    cfg["api_base"] = os.environ.get("VIORA_API_BASE", cfg["api_base"])
+    cfg["model"] = os.environ.get("VIORA_MODEL", cfg["model"])
+    cfg["api_key"] = os.environ.get("VIORA_API_KEY", cfg["api_key"])
+    return cfg
 
 
 def save(cfg: dict) -> None:
