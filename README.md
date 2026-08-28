@@ -102,6 +102,15 @@ docker run -it --rm --name=nim-server \
 Load the ZIP in Edge after starting the container. The server must provide
 `/v1/chat/completions` and accept the screenshot image sent by Viora.
 
+### One-click startup
+
+- **Windows:** double-click `start-viora-nim.bat`.
+- **Linux:** double-click `start-viora-nim.sh` or run `./start-viora-nim.sh`.
+
+The launcher runs NIM in the background and reuses the `nim-server` container
+if it already exists. Docker Desktop must be running on Windows, with NVIDIA
+GPU support enabled.
+
 ---
 
 ## 📦 Model Pack Overview
