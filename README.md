@@ -14,6 +14,21 @@
 
 ---
 
+## 🎯 Target Package
+
+The final release build is:
+
+- `viora-extension-6-1-😎-Best-VR.zip`
+
+This build is intended to package a premium AI browser automation experience with:
+
+- Integrated AI suite with free-access and premium-ready model routing
+- Multi-provider model support for reasoning, code generation, image generation, and multimodal automation
+- Refined UI/UX with polished sidepanel, settings, and model-selection flows
+- Production-ready packaging and deployment flow for direct GitHub repository publishing
+
+---
+
 ## ⭐ Support the Project
 
 If you find Viora useful, please consider **starring ⭐ this repo** and **following me** on GitHub — it really helps!
