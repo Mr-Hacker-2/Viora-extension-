@@ -1,0 +1,24 @@
+Here is a polished, professional, and clear rewrite of your notes and instructions:
+
+Target Package: viora-extension-6-1-😎-Best-VR.zip
+Feature Requirements & Overview
+Integrated AI Suite: Include a fully featured, free-to-use AI interface offering state-of-the-art capabilities:
+Coding & Math: Advanced algorithmic reasoning and automated code generation.
+Image Generation: High-fidelity image creation with accurate prompt adherence.
+Automation AI: Full multi-modal and UI-driven automation tools.
+Search Source Favicons: Inline display of site favicons next to search source links and citations (similar to Perplexity AI, Google Gemini, and ChatGPT) for clear visual attribution.
+UI/UX Enhancements:
+Modern, streamlined layout designed for a cohesive fit across screens.
+Upgraded styling with subtle visual effects, smooth transitions, and a polished user interface.
+Deployment: Automatically commit and push the finalized build directly to the GitHub repository upon completion.
+
+API Credentials & Model Configurations
+Reasoning & Code Generation
+Models: DeepSeek-R1 / DeepSeek-V4 Series
+API Key: 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
+Image Generation
+Models: FLUX.1-dev / FLUX.1-schnell
+API Key: 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
+Multimodal & Automation
+Models: NVIDIA Nemotron Series
+Authorization Header: Bearer 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
