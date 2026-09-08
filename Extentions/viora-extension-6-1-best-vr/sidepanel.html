@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viora</title>
+  <link rel="icon" href="icons/icon48.png" />
+  <link rel="shortcut icon" href="icons/icon48.png" />
+  <link rel="stylesheet" href="sidepanel.css" />
+  <script src="theme-init.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+          <path d="M11 1.8c.8 4.9 2.3 7.4 8.2 9.2-5.9 1.8-7.4 4.3-8.2 9.2-.8-4.9-2.3-7.4-8.2-9.2 5.9-1.8 7.4-4.3 8.2-9.2Z" fill="url(#vioraSparkleGradient)"/>
+          <defs><linearGradient id="vioraSparkleGradient" x1="3" y1="3" x2="19" y2="19" gradientUnits="userSpaceOnUse"><stop stop-color="#38BDF8"/><stop offset="0.5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#EC4899"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span class="logo-text">Viora</span>
+      <span class="mode-badge" id="modeBadge">Chat</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" id="themeToggleBtn" title="Toggle theme">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="historyToggleBtn" title="Chat history">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="clearBtn" title="Clear conversation">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="screenshotBtn" title="See my screen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </button>
+      <a href="settings.html" target="_blank" class="icon-btn" title="Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="command-strip" aria-label="Automation status">
+    <div class="command-strip-main">
+      <span class="status-pulse" aria-hidden="true"></span>
+      <span class="command-strip-label" id="workspaceStatus">Ready for a task</span>
+    </div>
+    <div class="command-strip-target" id="workspaceTarget">Active tab · type @ to target another</div>
+  </section>
+
+  <!-- Screenshot preview bar -->
+  <div class="screenshot-bar" id="screenshotBar" style="display:none">
+    <div class="screenshot-preview-wrap">
+      <img id="screenshotPreview" src="" alt="Screen preview" />
+      <span class="screenshot-label">Attached: current screen</span>
+    </div>
+    <button class="screenshot-remove" id="removeScreenshot">✕</button>
+  </div>
+
+  <!-- No API key notice -->
+    <div class="no-key-notice" id="noKeyNotice" style="display:none">
+      <div class="notice-icon">🔑</div>
+      <p>Add your <strong>API key</strong> in settings to get started — keys are per model provider.</p>
+      <a href="settings.html" target="_blank" class="btn-primary small">Open Settings</a>
+    </div>
+
+  <!-- Messages area -->
+  <main class="messages" id="messages">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon" id="welcomeIcon"></div>
+      <h2>What can I help with?</h2>
+      <p>Tell me what to do on this page — I can click, type, fill forms, and read what's on screen.</p>
+      <div class="quick-actions">
+        <button class="quick-chip" data-prompt="Look at this page, answer every question on it, and submit the assignment">📝 Complete this assignment</button>
+        <button class="quick-chip" data-prompt="Finish this entire survey by answering all questions on every page">📋 Finish this survey</button>
+        <button class="quick-chip" data-prompt="Search Google for the best electric cars in 2025 and extract the top results">🔍 Search & extract</button>
+        <button class="quick-chip" data-prompt="Take a full screenshot and describe everything you see on this page">👁️ Describe this page</button>
+        <button class="quick-chip" data-prompt="Analyze this page structure and list all interactive elements">🔎 Analyze page structure</button>
+        <button class="quick-chip" data-prompt="Undo the last action I did">↩ Undo last action</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Chat history sidebar -->
+  <aside class="history-sidebar" id="historySidebar">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="sidebar-panel" id="sidebarPanel">
+      <div class="sidebar-header">
+        <h3>Chat History</h3>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" title="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="sidebar-list" id="sidebarList"></div>
+      <div class="sidebar-empty" id="sidebarEmpty">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p>No chat history yet</p>
+      </div>
+    </div>
+  </aside>
+
+   <!-- Typing indicator -->
+   <div class="typing-indicator" id="typingIndicator" style="display:none">
+     <div class="thinking-orb">
+       <div class="thinking-orb-ring"></div>
+       <div class="thinking-orb-core">
+         <svg width="12" height="12" viewBox="0 0 22 22" fill="none"><path d="M11 2L4 13h5L7 21l9-12h-5l3-7Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+       </div>
+     </div>
+     <span class="typing-text" id="typingText"></span>
+   </div>
+
+
+  <!-- Search indicator — internet search animation -->
+  <div class="search-indicator" id="searchIndicator">
+    <div class="search-indicator-body">
+      <div class="search-ring">
+        <svg viewBox="0 0 32 32">
+          <circle class="ring-bg" cx="16" cy="16" r="13"/>
+          <circle class="ring-fg" cx="16" cy="16" r="13"/>
+          <circle class="ring-pulse" cx="16" cy="16" r="12"/>
+        </svg>
+        <div class="ai-eye">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="7" stroke="var(--accent)"/>
+            <circle cx="10" cy="10" r="3" fill="var(--accent)"/>
+            <path d="M2 10h3M15 10h3M10 2v3M10 15v3" stroke="var(--accent)" stroke-width="1.4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="search-info">
+        <div class="search-label" id="searchLabel">Searching the internet<span class="search-dots"><span></span><span></span><span></span></span></div>
+        <div class="search-sublabel" id="searchSublabel"></div>
+      </div>
+    </div>
+    <div class="search-websites" id="searchWebsites"></div>
+  </div>
+
+
+  <!-- Click-strategy indicator — shows the engine trying many different ways
+       to find/click a stubborn element (only appears once a click needs more
+       than a couple of tries, so ordinary fast clicks never show it) -->
+  <div class="click-strategy-indicator" id="clickStrategyIndicator">
+    <div class="click-eyes" id="clickEyes"></div>
+    <div class="search-info">
+      <div class="search-label" id="clickStrategyLabel">Trying different ways to click<span class="search-dots"><span></span><span></span><span></span></span></div>
+      <div class="search-sublabel" id="clickStrategySublabel"></div>
+    </div>
+  </div>
+
+  <!-- Input area -->
+  <footer class="input-area">
+
+    <!-- Tab picker popup — inside footer so absolute positioning anchors correctly -->
+    <div class="tab-picker" id="tabPicker" style="display:none">
+      <div class="tab-picker-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="tabPickerSearch" placeholder="Search open tabs…" autocomplete="off">
+      </div>
+      <div class="tab-picker-list" id="tabPickerList"></div>
+    </div>
+
+    <div class="tab-badge" id="tabBadge" style="display:none">
+      <img class="tab-badge-favicon" id="tabBadgeFavicon" src="" width="12" height="12">
+      <span id="tabBadgeTitle"></span>
+      <button class="tab-badge-clear" id="tabBadgeClear" title="Clear tab target">×</button>
+    </div>
+    <div class="run-mode-toggle" id="runModeToggle" role="radiogroup" aria-label="Run mode">
+      <button type="button" class="run-mode-option" id="runModeAction" role="radio" data-mode="action" tabindex="0" title="Keeps its reasoning tucked away and gets straight to clicking.">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Action
+      </button>
+      <button type="button" class="run-mode-option" id="runModePlan" role="radio" data-mode="plan" tabindex="-1" title="Talks through what it's seeing and planning to do, with its reasoning shown by default.">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Plan
+      </button>
+    </div>
+    <div class="input-wrap">
+      <textarea
+        id="chatInput"
+        placeholder="Message Viora… (type @ to target a tab)"
+        rows="1"
+        maxlength="4000"
+      ></textarea>
+      <div class="input-btns">
+        <button class="attach-screen-btn" id="attachScreenBtn" title="Attach screenshot">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+        <button class="attach-screen-btn" id="pickElementBtn" title="Pick element on page">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </button>
+        <button class="send-btn" id="sendBtn" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+        <button class="stop-input-btn" id="stopInputBtn" style="display:none" title="Stop">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="input-footer">
+      <span class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
+      <span class="speed-badge" id="speedBadge">⚡</span>
+      <span class="char-counter" id="charCounter">0 / 4000</span>
+    </div>
+  </footer>
+
+  <!-- First-run onboarding: connect an AI provider -->
+  <div class="onboarding-overlay" id="onboardingOverlay" style="display:none">
+    <div class="onboarding-card">
+      <div class="onboarding-icon">
+        <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+          <path d="M11 2L4 13h5L7 21l9-12h-5l3-7Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <h2>Connect Your First AI Provider</h2>
+      <p>Viora works with your favorite AI providers. Add an API key to get started.</p>
+      <div class="onboarding-grid" id="onboardingGrid">
+        <button type="button" class="onboarding-provider" data-provider="openrouter" title="OpenRouter — one key, 100+ models">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h11M11 6l6 6-6 6"/><path d="M4 6h4M4 18h4"/></svg>
+          <span>OpenRouter</span>
+        </button>
+        <button type="button" class="onboarding-provider" data-provider="openai" title="OpenAI">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M21 12h-3M6 12H3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7 5.6 5.6"/></svg>
+          <span>OpenAI</span>
+        </button>
+        <button type="button" class="onboarding-provider" data-provider="groq" title="Groq">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+          <span>Groq</span>
+        </button>
+        <button type="button" class="onboarding-provider" data-provider="deepseek" title="DeepSeek">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C7 2 4 6 4 10c0 5 4 7 4 11h8c0-4 4-6 4-11 0-4-3-8-8-8Z"/><path d="M9 10h6M9 14h6"/></svg>
+          <span>DeepSeek</span>
+        </button>
+        <button type="button" class="onboarding-provider" data-provider="mistralai" title="Mistral AI">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4l8 9 8-9v16"/></svg>
+          <span>Mistral AI</span>
+        </button>
+        <button type="button" class="onboarding-provider" data-provider="nvidia" title="NVIDIA">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 20 2 20"/></svg>
+          <span>NVIDIA</span>
+        </button>
+      </div>
+      <button type="button" class="onboarding-skip" id="onboardingSkip">Skip for now</button>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

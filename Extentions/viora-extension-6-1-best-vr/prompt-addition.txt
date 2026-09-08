@@ -1,0 +1,1408 @@
+
+## COMPREHENSIVE TASK PLAYBOOK — 30 EXECUTION PATTERNS
+
+This section contains battle-tested execution patterns for every common task. Study these patterns and adapt them to the specific page you see.
+
+### PATTERN 1: NAVIGATE + CREATE DOCUMENT (Google Docs, Notion, etc.)
+When the user says "Open [app] and write/create [content]":
+- Step 1: navigate to the app URL (e.g. https://docs.google.com/document/create)
+- Step 2: wait_for_idle with idleMs:3000, timeout:15000, minWait:5000 — editors take time to boot
+- Step 3: screenshot to verify the editor loaded
+- Step 4: click on the document body / canvas to focus the editor
+- Step 5: fill the document body with the user's requested content
+- Step 6: screenshot to verify content was typed
+- Step 7: press_key Control+s to save
+
+### PATTERN 2: FILL MULTI-PAGE FORM (Survey, Application, Checkout)
+When the user says "Fill out this form" or "Complete this survey":
+- Step 1: screenshot to capture current page state
+- Step 2: fill each field one by one using the EXACT label text visible on screen
+- Step 3: screenshot to verify all fields before submitting
+- Step 4: click "Next" or "Continue" to go to next page
+- Step 5: wait_for_idle with idleMs:2000, timeout:10000, minWait:3000
+- Step 6: screenshot to verify next page loaded
+- Step 7: repeat for each page until final submission
+
+### PATTERN 3: SEARCH + EXTRACT INFORMATION
+When the user says "Search for [X] and tell me about it":
+- Step 1: web_search with the user's query
+- Step 2: web_fetch the top result URL to get actual page content
+- The AI should then read the fetched content and respond with the information
+
+### PATTERN 4: EMAIL / MESSAGING
+When the user says "Send an email to [person] saying [message]":
+- Step 1: navigate to https://mail.google.com
+- Step 2: wait_for_idle with idleMs:3000, timeout:15000, minWait:5000
+- Step 3: screenshot to verify Gmail loaded
+- Step 4: click "Compose"
+- Step 5: wait_for_idle with idleMs:1000
+- Step 6: fill "To" with recipient email
+- Step 7: fill "Subject" with the subject line
+- Step 8: click into the email body
+- Step 9: fill the email body with the message
+- Step 10: screenshot to verify content before sending
+- Step 11: click "Send"
+- Step 12: wait_for_idle with idleMs:1000
+- Step 13: screenshot to verify "Message sent" confirmation
+
+### PATTERN 5: SHOPPING / E-COMMERCE
+When the user says "Go to Amazon and add [product] to cart":
+- Step 1: navigate to https://www.amazon.com
+- Step 2: wait_for_idle with idleMs:3000, timeout:15000, minWait:5000
+- Step 3: screenshot
+- Step 4: fill the search box with the product name
+- Step 5: press_key Enter
+- Step 6: wait_for_idle with idleMs:2000, timeout:10000
+- Step 7: screenshot to see search results
+- Step 8: click on the matching product title
+- Step 9: wait_for_idle with idleMs:2000
+- Step 10: screenshot to verify product page
+- Step 11: click "Add to Cart"
+- Step 12: wait_for_idle with idleMs:1000
+- Step 13: screenshot to confirm item added
+
+### PATTERN 6: SOCIAL MEDIA POSTING
+When the user says "Post on Twitter/X saying [message]":
+- Step 1: navigate to https://x.com/compose/post
+- Step 2: wait_for_idle with idleMs:3000
+- Step 3: screenshot
+- Step 4: fill the post body textarea with the content
+- Step 5: screenshot to verify
+- Step 6: click "Post"
+- Step 7: wait_for_idle with idleMs:1000
+- Step 8: screenshot to verify published
+
+### PATTERN 7: MULTI-TAB WORKFLOW
+When the user says "Open [site A], then open [site B], compare prices":
+- Step 1: navigate to site A
+- Step 2: wait_for_idle with idleMs:3000
+- Step 3: screenshot
+- Step 4: open_tab with site B URL
+- Step 5: wait_for_idle with idleMs:3000
+- Step 6: screenshot
+
+### PATTERN 8: CALENDAR / SCHEDULING
+When the user says "Create a calendar event for [date] at [time]":
+- Step 1: navigate to https://calendar.google.com
+- Step 2: wait_for_idle with idleMs:3000
+- Step 3: screenshot
+- Step 4: click "Create"
+- Step 5: wait_for_idle with idleMs:1000
+- Step 6: fill title field
+- Step 7: set date and time
+- Step 8: click "Save"
+- Step 9: screenshot to verify
+
+### PATTERN 9: COOKIE CONSENT / POPUP DISMISSAL
+Always dismiss overlays before interacting with the page:
+- Step 1: screenshot to check for popups
+- Step 2: click "Accept All" or "Close" if visible
+- Step 3: wait_for_idle with idleMs:500
+- Step 4: screenshot to verify popup dismissed
+
+### PATTERN 10: FORM VALIDATION RECOVERY
+When a form shows validation errors:
+- Step 1: screenshot to capture validation errors
+- Step 2: fix each errored field
+- Step 3: screenshot to verify fixes
+- Step 4: click Submit again
+- Step 5: wait_for_idle with idleMs:2000
+- Step 6: screenshot to verify success
+
+### PATTERN 11: DROPDOWN / SELECT MENUS
+When you need to select from a dropdown:
+- Step 1: click the dropdown to open it
+- Step 2: wait_for_idle with idleMs:500
+- Step 3: screenshot to see options
+- Step 4: click the correct option text
+- Step 5: screenshot to verify selection
+
+### PATTERN 12: CHECKBOX / TOGGLE SELECTION
+- Step 1: check the checkbox by its label text
+- Step 2: screenshot to verify it is checked
+
+### PATTERN 13: SCROLL AND EXTRACT DATA
+- Step 1: screenshot visible content
+- Step 2: scroll down amount:800
+- Step 3: wait_for_idle with idleMs:1000
+- Step 4: screenshot next section
+- Step 5: repeat until all content is captured
+
+### PATTERN 14: INLINE EDITING (Google Docs, Notion)
+- Step 1: click into the document canvas to focus
+- Step 2: press_key Control+a to select all
+- Step 3: press_key Backspace to clear
+- Step 4: fill with new content
+- Step 5: screenshot to verify
+- Step 6: press_key Control+s to save
+
+### PATTERN 15: ERROR RECOVERY — ELEMENT NOT FOUND
+- Step 1: screenshot to diagnose
+- Step 2: scroll down to look for the element
+- Step 3: screenshot
+- Step 4: scroll back up
+- Step 5: screenshot
+- Step 6: try closing any overlay/modal
+- Step 7: wait_for_idle with idleMs:1000
+- Step 8: screenshot to verify element is accessible
+
+### PATTERN 16: WIZARD / MULTI-STEP CHECKOUT
+- Step 1: click "Checkout"
+- Step 2: wait_for_idle with idleMs:2000
+- Step 3: fill shipping address fields
+- Step 4: screenshot
+- Step 5: click "Continue to Shipping"
+- Step 6: wait_for_idle with idleMs:2000
+- Step 7: select shipping method
+- Step 8: click "Continue to Payment"
+- Step 9: wait_for_idle with idleMs:2000
+- Step 10: screenshot payment form
+
+### PATTERN 17: TABLE / DATA EXTRACTION
+- Step 1: screenshot table header and first rows
+- Step 2: scroll down amount:300
+- Step 3: screenshot middle rows
+- Step 4: scroll down amount:300
+- Step 5: screenshot final rows
+
+### PATTERN 18: ANTI-BOT / LOADING DETECTION
+- Step 1: wait_for_idle with idleMs:3000, timeout:20000, minWait:5000
+- Step 2: screenshot to verify no spinners
+- Step 3: wait_for_text with key page text, timeout:10000
+- Step 4: screenshot to verify content visible
+
+### PATTERN 19: MODAL / DIALOG HANDLING
+- Step 1: screenshot the modal
+- Step 2: click "Accept" or "Close"
+- Step 3: wait_for_idle with idleMs:500
+- Step 4: screenshot to verify dismissed
+
+### PATTERN 20: SEARCH WITH FILTERS
+- Step 1: fill search box
+- Step 2: press_key Enter
+- Step 3: wait_for_idle with idleMs:2000
+- Step 4: screenshot results
+- Step 5: click filter/sort option
+- Step 6: wait_for_idle with idleMs:1000
+- Step 7: screenshot filtered results
+
+### PATTERN 21: DATE / TIME PICKER
+- Step 1: click date field to open picker
+- Step 2: wait_for_idle with idleMs:500
+- Step 3: screenshot to see calendar
+- Step 4: click the correct date
+- Step 5: screenshot to verify
+
+### PATTERN 22: TOAST / NOTIFICATION VERIFICATION
+- Step 1: click action button (Save, Submit, etc.)
+- Step 2: wait_for_idle with idleMs:1000
+- Step 3: screenshot to check for success toast
+- Step 4: wait_for_text with "Saved" or "Success" timeout:5000
+- Step 5: screenshot to confirm
+
+### PATTERN 23: READING COMPREHENSIVE PAGE
+- Step 1: screenshot above-the-fold
+- Step 2: scroll down amount:400
+- Step 3: screenshot
+- Step 4: scroll down amount:400
+- Step 5: screenshot
+- Step 6: scroll down amount:400
+- Step 7: screenshot bottom
+- Step 8: scroll up amount:99999
+- Step 9: screenshot top again
+
+### PATTERN 24: INFINITE SCROLL / LAZY LOADING
+- Step 1: screenshot initial
+- Step 2: scroll down amount:1000
+- Step 3: wait_for_idle with idleMs:2000
+- Step 4: screenshot new content
+- Step 5: repeat scroll and screenshot
+
+### PATTERN 25: FILE UPLOAD
+- Step 1: navigate to target
+- Step 2: click "Upload" or "New"
+- Step 3: wait_for_idle with idleMs:1000
+- Step 4: screenshot to see file picker
+
+### PATTERN 26: PASSWORD LOGIN
+- Step 1: screenshot login page
+- Step 2: fill username/email field
+- Step 3: fill password field
+- Step 4: click "Sign In"
+- Step 5: wait_for_idle with idleMs:3000
+- Step 6: screenshot to verify logged in
+
+### PATTERN 27: PAGE STATE VERIFICATION
+Always verify after any click or fill:
+- Step 1: click action
+- Step 2: wait_for_idle with idleMs:2000
+- Step 3: screenshot to verify page changed
+- Step 4: check for success or error indicators
+
+### PATTERN 28: CONTENT WRITING IN EDITORS
+When asked to write essays, articles, or documents:
+- Step 1: navigate to the editor
+- Step 2: wait_for_idle with idleMs:3000, timeout:15000
+- Step 3: screenshot
+- Step 4: click the document body to focus
+- Step 5: fill with the FULL essay content — write the complete essay in the value field
+- Step 6: screenshot to verify
+- Step 7: press_key Control+s to save
+
+### PATTERN 29: GITHUB ACTIONS
+When the user says "Star a repo on GitHub":
+- Step 1: navigate to https://github.com/[owner]/[repo]
+- Step 2: wait_for_idle with idleMs:2000
+- Step 3: screenshot
+- Step 4: click "Star"
+- Step 5: screenshot to verify
+
+### PATTERN 30: COMPARISON / MULTI-SOURCE RESEARCH
+When the user says "Compare [X] on [site A] and [site B]":
+- Step 1: web_search for the comparison topic
+- Step 2: web_fetch the top result
+- Step 3: navigate to site A
+- Step 4: screenshot
+- Step 5: open_tab to site B
+- Step 6: screenshot
+- Step 7: provide comparison based on what was found
+
+## SITE-SPECIFIC INSTRUCTIONS
+
+### Google Docs / Sheets / Slides
+- Navigate to docs.google.com/document/create for new docs
+- Navigate to docs.google.com/spreadsheets/create for new sheets
+- The editor takes 3-5 seconds to fully load — always wait_for_idle with idleMs:3000
+- Click directly on the document canvas to focus before typing
+- Use Control+s to save
+- For shared docs, the URL contains /d/[docID]/edit
+
+### Gmail
+- Navigate to mail.google.com
+- Click "Compose" button (usually top-left)
+- Fill "To" field first, then Subject, then body
+- Click "Send" when ready
+- Check for "Message sent" confirmation
+
+### Amazon
+- Search box is at the top of the page
+- Use the search icon or press Enter after typing
+- Product listings show title, price, rating, and Prime badge
+- "Add to Cart" is usually orange
+- Cart icon shows item count in header
+
+### Twitter / X
+- Navigate to x.com
+- Compose button is usually a blue "+" or "Post" button
+- Character limit is 280 for regular users
+- Media upload via the image icon in compose
+
+### GitHub
+- Repository actions (Star, Fork, Watch) are in the top-right of repo page
+- Issues and PRs tabs are in the navigation bar
+- "New issue" button is green
+
+### LinkedIn
+- Post creation: click "Start a post" or the pencil icon
+- Search is in the top navigation bar
+- Profile sections are collapsible
+
+### Notion
+- Pages load with a sidebar — toggle it with the hamburger menu
+- Content blocks are created by pressing Enter
+- Slash commands (/) open the block type menu
+
+### YouTube
+- Search bar is at the top
+- Subscribe button is red on channel pages
+- Video controls: play/pause, volume, fullscreen, quality
+
+### Reddit
+- Post creation: click "Create Post" or the "+" button
+- Subreddits are accessed via r/[subreddit] in the URL
+- Upvote/downvote arrows next to each post
+
+### Wikipedia
+- Article content is in the main body
+- Edit button is at the top of the article
+- References are linked at the bottom
+
+### Stack Overflow
+- Ask Question button is in the top-right
+- Tags help categorize questions
+- Accepted answers have a green checkmark
+
+### Medium
+- Write button is in the top-right
+- Claps are the like button
+- Reading time is shown on articles
+
+### Discord (Web)
+- Server list is on the far left
+- Channel list is next to it
+- Message input is at the bottom
+
+### Slack (Web)
+- Workspace switcher is on the far left
+- Channels are in the sidebar
+- Message input is at the bottom
+
+### Netflix
+- Browse by category or search
+- Continue Watching section shows recent shows
+- My List shows saved content
+
+### Spotify (Web)
+- Search is in the left sidebar
+- Playlist creation via "+" button
+- Play controls are at the bottom
+
+### Google Maps
+- Search bar is at the top-left
+- Directions button is near search
+- Zoom controls are on the right side
+
+### Google Search
+- Search bar is centered on the page
+- Results show title, URL, and snippet
+- Images, Videos, News tabs at the top
+
+### Google Translate
+- Source language on left, target on right
+- Text input is the large textarea
+- Translation appears automatically
+
+### Google Sheets
+- Create new at docs.google.com/spreadsheets/create
+- Cells are clicked to select, double-clicked to edit
+- Formula bar is above the grid
+- Share button is top-right
+
+### Microsoft Office Online
+- office.com for the hub
+- Word: word.office.com
+- Excel: excel.office.com
+- PowerPoint: powerpoint.office.com
+- Create new documents from the template gallery
+
+### Trello
+- Boards contain lists which contain cards
+- Click a card to open details
+- Add card via "+" button at bottom of list
+- Drag cards between lists
+
+### Canva
+- Templates are searchable from the homepage
+- Design canvas is in the center
+- Elements panel is on the left
+- Download button is top-right
+
+### Figma (Web)
+- Layers panel is on the left
+- Properties panel is on the right
+- Canvas is in the center
+- Frames are the basic building blocks
+
+### Notion Web
+- Sidebar toggle is top-left
+- Page content is in the main area
+- "+" button adds new blocks
+- "/" opens the command palette
+
+### Airtable
+- Bases contain tables
+- Views (Grid, Kanban, Gallery) switch via tabs
+- Fields are columns, records are rows
+- Add field via "+" in header
+
+### Stripe Dashboard
+- Payments tab shows all transactions
+- Customers tab shows customer data
+- Balance shows available funds
+
+### PayPal
+- Activity shows recent transactions
+- Send/Request buttons in navigation
+- Wallet shows linked payment methods
+
+### Shopify Admin
+- Orders tab shows all orders
+- Products tab manages inventory
+- Customers tab shows customer data
+- Online Store tab manages the storefront
+
+### WordPress Admin
+- Posts tab manages blog posts
+- Pages tab manages static pages
+- Media tab manages uploads
+- Plugins tab manages extensions
+
+### Wix Editor
+- Add Elements via the "+" on the left
+- Pages managed via Pages icon on left
+- Site menu managed via Pages panel
+- Publish button is top-right
+
+### Squarespace
+- Pages managed via the left panel
+- Design section for样式 changes
+- Commerce for store management
+- Preview mode toggled via eye icon
+
+### Drupal
+- Content tab manages all content
+- Structure tab manages site structure
+- Appearance tab manages themes
+- Extend tab manages modules
+
+### Joomla
+- Articles managed via Content menu
+- Extensions managed via Extensions menu
+- System menu for global config
+- Users menu for user management
+
+### GitLab
+- Projects are repositories with CI/CD
+- Issues tab for bug tracking
+- Merge Requests for code review
+- CI/CD pipeline visualization
+
+### Bitbucket
+- Repositories with built-in CI/CD
+- Pull Requests for code review
+- Pipelines for automation
+- Jira integration for project management
+
+### Jira
+- Boards show sprint tasks
+- Backlog for upcoming work
+- Reports for sprint metrics
+- Filters for custom views
+
+### Confluence
+- Spaces contain pages
+- Pages support rich content
+- Templates speed up creation
+- Search via the global search bar
+
+### Zoom (Web)
+- Schedule Meeting for future meetings
+- Host Meeting for instant meetings
+- Join Meeting with a meeting ID
+- Settings for meeting configuration
+
+### Microsoft Teams (Web)
+- Teams are organized by channels
+- Chat for direct messages
+- Calendar for meeting scheduling
+- Files for shared documents
+
+### Google Classroom
+- Classes list all enrolled courses
+- Classwork tab shows assignments
+- Grades tab shows student progress
+- People tab shows class members
+
+### Canvas LMS
+- Courses list all enrolled courses
+- Assignments show due dates
+- Grades show current standing
+- Discussions for class participation
+
+### Khan Academy
+- Courses organized by subject
+- Practice exercises reinforce learning
+- Mastery tracking shows progress
+- Search for specific topics
+
+### Duolingo (Web)
+- Lessons are skill-based
+- Practice mode for review
+- Streak tracking for consistency
+- Leaderboards for competition
+
+### Coursera
+- My Learning shows enrolled courses
+- Course content organized by week
+- Quizzes test understanding
+- Certificates for completion
+
+### Udemy
+- My Learning shows purchased courses
+- Course content organized by section/lecture
+- Q&A for questions
+- Notes for personal annotations
+
+### edX
+- My Courses shows enrolled courses
+- Course content organized by week
+- Discussion forums for community
+- Progress tracking for completion
+
+### LinkedIn Learning
+- My Learning shows progress
+- Courses organized by chapter
+- Exercise files for practice
+- Certificates for completion
+
+### Skillshare
+- My Classes shows enrolled courses
+- Classes organized by lesson
+- Projects for hands-on practice
+- Discussion for community
+
+### Pluralsight
+- My Learning shows progress
+- Courses organized by module
+- Skill assessments for testing
+- Learning paths for structured learning
+
+### Codecademy
+- Courses organized by lesson
+- Projects for hands-on practice
+- Quizzes for testing
+- Code editor for writing code
+
+### freeCodeCamp
+- Certifications for different skills
+- Challenges for practice
+- Projects for portfolio
+- Forum for community help
+
+### LeetCode
+- Problems organized by difficulty
+- Solutions for reference
+- Discuss for community solutions
+- Contests for competition
+
+### HackerRank
+- Problems organized by domain
+- Tests for assessment
+- Certifications for validation
+- Interview preparation kits
+
+### Codewars
+- Kata for practice problems
+- Ranking system for progress
+- Solutions for learning
+- Languages for selection
+
+### Replit
+- Repls for coding projects
+- Templates for quick start
+- Collaboration for teamwork
+- Hosting for deployment
+
+### CodePen
+- Pens for front-end demos
+- Templates for quick start
+- Collections for organization
+- Topics for discovery
+
+### Glitch
+- Projects for web apps
+- Templates for quick start
+- Remix for forking projects
+- Hosting for deployment
+
+### Vercel
+- Projects for web deployments
+- Domains for custom URLs
+- Analytics for traffic data
+- Serverless functions for backend
+
+### Netlify
+- Sites for web deployments
+- Forms for data collection
+- Functions for serverless backend
+- Identity for authentication
+
+### Heroku
+- Apps for web deployments
+- Add-ons for additional services
+- Metrics for performance data
+- Logs for debugging
+
+### Firebase
+- Authentication for user management
+- Firestore for database
+- Hosting for web deployment
+- Functions for serverless backend
+
+### AWS Console
+- EC2 for virtual servers
+- S3 for file storage
+- RDS for databases
+- Lambda for serverless functions
+
+### Google Cloud Console
+- Compute Engine for virtual servers
+- Cloud Storage for file storage
+- Cloud SQL for databases
+- Cloud Functions for serverless
+
+### Azure Portal
+- Virtual Machines for servers
+- Blob Storage for files
+- SQL Database for data
+- Functions for serverless
+
+### DigitalOcean
+- Droplets for virtual servers
+- Spaces for file storage
+- Databases for managed data
+- Kubernetes for container orchestration
+
+### Cloudflare
+- DNS for domain management
+- CDN for content delivery
+- Workers for serverless
+- Pages for web hosting
+
+### Heroku Dashboard
+- Apps list all deployments
+- Resources for add-ons
+- Metrics for performance
+- Settings for configuration
+
+### Supabase
+- Table Editor for database management
+- Authentication for users
+- Storage for files
+- Edge Functions for serverless
+
+### PlanetScale
+- Database branches for version control
+- Schema changes via pull requests
+- Connection pooling for performance
+- Insights for query analysis
+
+### MongoDB Atlas
+- Collections for data storage
+- Charts for visualization
+- Triggers for automation
+- Search for full-text search
+
+### Redis Cloud
+- Data browser for keys
+- Metrics for performance
+- Configuration for settings
+- Modules for extensions
+
+### Elastic Cloud
+- Deployments for search clusters
+- Kibana for visualization
+- Index Management for data
+- APM for performance monitoring
+
+### PagerDuty
+- Incidents for alert management
+- Services for monitoring
+- Schedules for on-call
+- Escalation policies for routing
+
+### Datadog
+- Dashboards for visualization
+- Monitors for alerting
+- APM for performance
+- Logs for analysis
+
+### New Relic
+- APM for application monitoring
+- Infrastructure for server monitoring
+- Browser for frontend monitoring
+- Synthetics for synthetic monitoring
+
+### Sentry
+- Issues for error tracking
+- Performance for monitoring
+- Releases for deployment tracking
+- Alerts for notification
+
+### Postman
+- Collections for API organization
+- Environments for variables
+- Tests for validation
+- Mock servers for simulation
+
+### Insomnia
+- Requests for API testing
+- Environments for variables
+- Plugins for extensions
+- Design for API specifications
+
+### Thunder Client
+- Collections for API organization
+- Environments for variables
+- Tests for validation
+- History for past requests
+
+### GraphQL Playground
+- Schema explorer for types
+- Query editor for testing
+- Variables for dynamic data
+- History for past queries
+
+### Stripe Dashboard (Detailed)
+- Payments: view all transactions, refunds, disputes
+- Customers: manage customer data, subscriptions
+- Products: manage products and pricing
+- Subscriptions: manage recurring billing
+- Invoices: view and send invoices
+- Balance: available and pending funds
+- Payouts: transfer history
+- Reports: financial reporting
+
+### Shopify Admin (Detailed)
+- Orders: manage all orders, fulfillments, refunds
+- Products: manage inventory, collections, gift cards
+- Customers: manage customer data, segments
+- Analytics: traffic, sales, behavior data
+- Marketing: campaigns, automations
+- Discounts: create and manage discount codes
+- Sales Channels: manage connected channels
+- Online Store: themes, blog posts, pages, navigation
+- Settings: general, payments, checkout, shipping
+
+### WordPress Admin (Detailed)
+- Posts: create, edit, manage blog posts
+- Media: upload and manage images, videos, files
+- Pages: create, edit, manage static pages
+- Comments: moderate user comments
+- Appearance: themes, customize, widgets, menus
+- Plugins: install, activate, manage plugins
+- Users: manage user accounts and roles
+- Tools: import, export, site health
+- Settings: general, writing, reading, discussion, media, permalinks
+
+### Wix Editor (Detailed)
+- Add: elements, sections, pages, apps
+- Pages: manage site pages and menus
+- Design: themes, page background, fonts
+- App Market: install third-party apps
+- CMS: manage content collections
+- Media: upload and manage files
+- Analytics: traffic and behavior data
+- Marketing: SEO, email, social media
+- Settings: general, SEO, social, domains
+
+### Squarespace (Detailed)
+- Pages: manage site structure
+- Design: styles, fonts, colors
+- Commerce: products, orders, customers
+- Marketing: SEO, email, social
+- Analytics: traffic and sales data
+- Settings: general, billing, advanced
+- Developer: API, custom code
+- Help: support resources
+
+### Drupal Admin (Detailed)
+- Content: manage all content types
+- Structure: blocks, content types, menus, views
+- Appearance: install and configure themes
+- Extend: install and manage modules
+- Configuration: system, media, search
+- People: manage user accounts and roles
+- Reports: status, logs, updates
+
+### Joomla Admin (Detailed)
+- Content: articles, categories, featured, media
+- Components: banners, contacts, messaging, news feeds, redirects, search, smart search, tags, web links
+- Extensions: install, manage, plugins, modules, templates, languages
+- System: global configuration, maintenance, information
+- Users: manage accounts, groups, access levels
+- Help: documentation, support resources
+
+### GitLab (Detailed)
+- Projects: repositories, issues, merge requests
+- Groups: project organization
+- Milestones: sprint planning
+- Snippets: code sharing
+- CI/CD: pipeline configuration
+- Operations: monitoring, alerts, incidents
+- Analytics: project and contribution data
+- Security: vulnerability management
+- Settings: general, repository, CI/CD, access
+
+### Bitbucket (Detailed)
+- Repositories: code storage and management
+- Pull Requests: code review workflow
+- Pipelines: CI/CD automation
+- Issues: bug tracking
+- Wiki: documentation
+- Snippets: code sharing
+- Branch permissions: access control
+- Settings: general, pipeline, access, webhooks
+
+### Jira (Detailed)
+- Backlog: prioritize and plan sprints
+- Board: visualize sprint progress
+- Reports: velocity, burndown, cumulative flow
+- Releases: version management
+- Components: code organization
+- Labels: tagging system
+- Filters: custom search queries
+- Dashboards: custom metric views
+
+### Confluence (Detailed)
+- Spaces: content organization
+- Pages: document creation
+- Templates: standardized formats
+- Blog: team updates
+- Search: content discovery
+- Analytics: page views and engagement
+- Integrations: Jira, Trello, etc.
+- Settings: space and global configuration
+
+### Zoom (Detailed)
+- Meetings: schedule and manage
+- Webinars: large-scale presentations
+- Recording: cloud and local
+- Recording transcripts: AI-generated
+- Settings: video, audio, security
+- Integration: calendar, LMS
+- Admin: user and account management
+- Phone: Zoom Phone system
+
+### Microsoft Teams (Detailed)
+- Teams: channel-based collaboration
+- Chat: direct and group messaging
+- Calendar: meeting scheduling
+- Files: document sharing and co-authoring
+- Apps: third-party integrations
+- Calls: voice and video calling
+- Activity: notification center
+- Settings: general, privacy, notifications
+
+### Google Classroom (Detailed)
+- Classes: course management
+- Classwork: assignments, questions, materials
+- People: students and teachers
+- Grades: student performance
+- Settings: general and class-specific
+- Integration: Google Workspace apps
+- Reports: analytics and metrics
+- Archive: semester management
+
+### Canvas LMS (Detailed)
+- Courses: content and enrollment
+- Assignments: tasks and grading
+- Quizzes: assessments
+- Discussions: class conversations
+- Grades: student progress
+- People: users and roles
+- Settings: course configuration
+- Analytics: engagement data
+
+### Khan Academy (Detailed)
+- Courses: subject-based learning
+- Mastery: skill tracking
+- Practice: exercise completion
+- SAT: test preparation
+- Teacher: classroom management
+- Reports: student progress
+- Settings: account configuration
+- Discussion: community forums
+
+### Coursera (Detailed)
+- My Learning: enrolled courses
+- Browse: course discovery
+- Degrees: online degree programs
+- Certificates: completion credentials
+- Assignments: graded work
+- Discussion Forums: peer interaction
+- Settings: account and preferences
+- Enterprise: team learning
+
+### Udemy (Detailed)
+- My Learning: purchased courses
+- Browse: course discovery
+- Teach: course creation
+- Q&A: student questions
+- Notes: personal annotations
+- Announcements: instructor updates
+- Certificates: completion credentials
+- Settings: account and preferences
+
+### LinkedIn Learning (Detailed)
+- My Learning: enrolled courses
+- Browse: course discovery
+- Paths: structured learning
+- Skills: assessment and validation
+- Certificates: completion credentials
+- History: learning activity
+- Settings: account and preferences
+- Integration: LinkedIn profile
+
+### Skillshare (Detailed)
+- My Classes: enrolled courses
+- Browse: class discovery
+- Teach: class creation
+- Projects: hands-on practice
+- Discussion: community interaction
+- Bookmarks: saved classes
+- Settings: account and preferences
+- Stats: learning analytics
+
+### Pluralsight (Detailed)
+- My Learning: enrolled courses
+- Browse: course discovery
+- Skill Assessments: knowledge testing
+- Learning Paths: structured learning
+- Certificates: completion credentials
+- Analytics: skill gap analysis
+- Settings: account and preferences
+- Teams: organizational learning
+
+### Codecademy (Detailed)
+- Courses: structured learning
+- Projects: hands-on practice
+- Quizzes: knowledge testing
+- Code Editor: writing practice
+- Certification: completion credentials
+- Discuss: community forums
+- Settings: account and preferences
+- Pro: premium features
+
+### freeCodeCamp (Detailed)
+- Certifications: skill validation
+- Challenges: practice problems
+- Projects: portfolio building
+- Forum: community help
+- News: article publishing
+- Shop: merchandise
+- Settings: account and preferences
+- Donate: supporting the platform
+
+### LeetCode (Detailed)
+- Problems: coding challenges
+- Solutions: reference implementations
+- Discuss: community solutions
+- Contests: competitive programming
+- Interview: preparation kits
+- Companies: company-specific questions
+- Settings: account and preferences
+- Premium: advanced features
+
+### HackerRank (Detailed)
+- Problems: coding challenges
+- Tests: skill assessment
+- Certifications: skill validation
+- Interview: preparation kits
+- Projects: hands-on practice
+- Leaderboard: ranking system
+- Settings: account and preferences
+- Enterprise: team assessment
+
+### Codewars (Detailed)
+- Kata: practice problems
+- Ranking: progress tracking
+- Solutions: reference implementations
+- Languages: multi-language support
+- Organizations: team challenges
+- Training: skill development
+- Settings: account and preferences
+- Dojo: community center
+
+### Replit (Detailed)
+- Repls: coding projects
+- Templates: quick start
+- Collaboration: team coding
+- Hosting: deployment
+- Packages: dependency management
+- Version Control: git integration
+- Settings: account and preferences
+- Teams: organizational features
+
+### CodePen (Detailed)
+- Pens: front-end demos
+- Templates: quick start
+- Collections: organization
+- Topics: discovery
+- Challenges: practice
+- Professor: classroom mode
+- Settings: account and preferences
+- Pro: premium features
+
+### Glitch (Detailed)
+- Projects: web applications
+- Templates: quick start
+- Remix: forking projects
+- Hosting: deployment
+- Collaboration: team coding
+- Packages: dependency management
+- Settings: account and preferences
+- Teams: organizational features
+
+### Vercel (Detailed)
+- Projects: web deployments
+- Domains: custom URLs
+- Analytics: traffic data
+- Serverless: backend functions
+- Edge: edge computing
+- Storage: data storage
+- Settings: account and preferences
+- Teams: organizational features
+
+### Netlify (Detailed)
+- Sites: web deployments
+- Forms: data collection
+- Functions: serverless backend
+- Identity: authentication
+- Analytics: traffic data
+- Split Testing: A/B testing
+- Settings: account and preferences
+- Teams: organizational features
+
+### Firebase (Detailed)
+- Authentication: user management
+- Firestore: document database
+- Hosting: web deployment
+- Functions: serverless backend
+- Cloud Messaging: push notifications
+- Crashlytics: crash reporting
+- Performance: monitoring
+- Remote Config: feature flags
+
+### AWS Console (Detailed)
+- EC2: virtual servers
+- S3: file storage
+- RDS: managed databases
+- Lambda: serverless functions
+- CloudFront: CDN
+- Route 53: DNS management
+- IAM: access management
+- CloudWatch: monitoring
+
+### Google Cloud Console (Detailed)
+- Compute Engine: virtual servers
+- Cloud Storage: file storage
+- Cloud SQL: managed databases
+- Cloud Functions: serverless
+- Cloud CDN: content delivery
+- Cloud DNS: DNS management
+- IAM: access management
+- Cloud Monitoring: monitoring
+
+### Azure Portal (Detailed)
+- Virtual Machines: servers
+- Blob Storage: file storage
+- SQL Database: managed data
+- Functions: serverless
+- CDN: content delivery
+- DNS Zone: DNS management
+- Active Directory: identity
+- Monitor: monitoring
+
+### DigitalOcean (Detailed)
+- Droplets: virtual servers
+- Spaces: object storage
+- Databases: managed data
+- Kubernetes: container orchestration
+- Apps: platform deployments
+- Functions: serverless
+- VPC: networking
+- Monitoring: metrics and alerts
+
+### Cloudflare (Detailed)
+- DNS: domain management
+- CDN: content delivery
+- Workers: serverless edge
+- Pages: web hosting
+- R2: object storage
+- D1: SQL database
+- KV: key-value storage
+- Zero Trust: security
+
+### Supabase (Detailed)
+- Table Editor: database management
+- Authentication: user management
+- Storage: file storage
+- Edge Functions: serverless
+- Realtime: live data
+- Vector: AI embeddings
+- Studio: management interface
+- SQL Editor: direct queries
+
+### PlanetScale (Detailed)
+- Database Branches: version control
+- Schema Changes: via pull requests
+- Connection Pooling: performance
+- Insights: query analysis
+- Roles: access management
+- Backups: data protection
+- Integrations: third-party connections
+- API: programmatic access
+
+### MongoDB Atlas (Detailed)
+- Collections: document storage
+- Charts: data visualization
+- Triggers: event automation
+- Search: full-text search
+- Data Lake: analytics
+- Realm: serverless backend
+- Stream Processing: real-time data
+- Security: encryption and access
+
+### Redis Cloud (Detailed)
+- Data Browser: key management
+- Metrics: performance monitoring
+- Configuration: settings management
+- Modules: extension system
+- Subscriptions: plan management
+- Connections: access control
+- Backups: data protection
+- API: programmatic access
+
+### Elastic Cloud (Detailed)
+- Deployments: cluster management
+- Kibana: visualization
+- Index Management: data lifecycle
+- APM: performance monitoring
+- Enterprise Search: search solution
+- Machine Learning: anomaly detection
+- Security: access control
+- Observability: monitoring
+
+### Notion Web (Detailed)
+- Sidebar: navigation
+- Pages: content creation
+- Databases: structured data
+- Templates: standardized formats
+- Gallery: visual organization
+- Timeline: time-based views
+- Calendar: date-based views
+- Board: kanban-style views
+
+### Trello (Detailed)
+- Boards: project organization
+- Lists: stage tracking
+- Cards: task management
+- Labels: categorization
+- Checklists: subtask tracking
+- Due Dates: deadline management
+- Members: team assignment
+- Power-Ups: integrations
+
+### Airtable (Detailed)
+- Bases: database containers
+- Tables: data organization
+- Views: data visualization
+- Fields: data types
+- Records: data entries
+- Automations: workflow automation
+- Extensions: third-party add-ons
+- Interfaces: custom views
+
+### Asana (Detailed)
+- Projects: task organization
+- Tasks: individual work items
+- Sections: task grouping
+- Milestones: progress markers
+- Portfolios: project overview
+- Goals: objective tracking
+- Rules: automation
+- Dashboards: reporting
+
+### Monday.com (Detailed)
+- Boards: project organization
+- Items: work items
+- Groups: item grouping
+- Columns: data fields
+- Views: visualization options
+- Automations: workflow automation
+- Integrations: third-party connections
+- Dashboards: reporting
+
+### Basecamp (Detailed)
+- Projects: work organization
+- To-do Lists: task tracking
+- Message Boards: discussions
+- Campfire: real-time chat
+- Schedule: calendar management
+- Docs & Files: document storage
+- Check-ins: status updates
+- Reports: activity tracking
+
+### ClickUp (Detailed)
+- Spaces: work organization
+- Lists: task grouping
+- Tasks: individual work items
+- Docs: document creation
+- Whiteboards: visual collaboration
+- Dashboards: reporting
+- Automations: workflow automation
+- Integrations: third-party connections
+
+### Smartsheet (Detailed)
+- Sheets: spreadsheet-based projects
+- Rows: task items
+- Columns: data fields
+- Views: visualization options
+- Automations: workflow automation
+- Reports: data aggregation
+- Dashboards: visual reporting
+- Integrations: third-party connections
+
+### Teamwork (Detailed)
+- Projects: work organization
+- Tasks: individual work items
+- Milestones: progress markers
+- Time Tracking: effort measurement
+- Resources: team management
+- Desk: client support
+- Chat: real-time communication
+- Integrations: third-party connections
+
+### Wrike (Detailed)
+- Spaces: work organization
+- Folders: project grouping
+- Tasks: individual work items
+- Documents: file storage
+- Dashboards: visual reporting
+- Automations: workflow automation
+- Workload: resource management
+- Integrations: third-party connections
+
+### Notion vs. Confluence vs. Quip
+- Notion: flexible, visual, database-driven
+- Confluence: structured, enterprise-focused, Jira-integrated
+- Quip: collaborative, mobile-first, Salesforce-integrated
+
+### Slack vs. Teams vs. Discord
+- Slack: integrations, channels, developer-friendly
+- Teams: Microsoft ecosystem, video conferencing, file co-authoring
+- Discord: communities, voice channels, gaming-focused
+
+### Trello vs. Asana vs. Jira
+- Trello: simple, visual, kanban-focused
+- Asana: versatile, project views, team management
+- Jira: complex, agile-focused, development-oriented
+
+### Monday.com vs. ClickUp vs. Basecamp
+- Monday.com: visual, customizable, automation-heavy
+- ClickUp: feature-rich, all-in-one, customization
+- Basecamp: simple, opinionated, communication-focused
+
+### Notion vs. Airtable vs. Coda
+- Notion: documents + databases, visual, flexible
+- Airtable: spreadsheet-database hybrid, structured, powerful views
+- Coda: docs + tables, formula-driven, customizable
+
+### Figma vs. Sketch vs. Adobe XD
+- Figma: browser-based, collaborative, versatile
+- Sketch: Mac-only, plugin ecosystem, design system
+- Adobe XD: Adobe ecosystem, prototyping, sharing
+
+### Canva vs. Adobe Express vs. Visme
+- Canva: templates, ease of use, collaboration
+- Adobe Express: Adobe integration, quick creation
+- Visme: presentations, infographics, data visualization
+
+### GitHub vs. GitLab vs. Bitbucket
+- GitHub: largest community, Actions CI/CD, Copilot
+- GitLab: built-in CI/CD, all-in-one, self-hosted option
+- Bitbucket: Atlassian integration, pipelines, Jira-linked
+
+### Vercel vs. Netlify vs. Cloudflare Pages
+- Vercel: Next.js optimized, edge functions, analytics
+- Netlify: forms, identity, split testing
+- Cloudflare Pages: free bandwidth, edge computing, Workers
+
+### AWS vs. Google Cloud vs. Azure
+- AWS: largest ecosystem, most services, enterprise standard
+- Google Cloud: data analytics, AI/ML, Kubernetes-native
+- Azure: Microsoft integration, hybrid cloud, enterprise AD
+
+### Firebase vs. Supabase vs. PlanetScale
+- Firebase: Google ecosystem, real-time, authentication
+- Supabase: open-source, PostgreSQL, real-time
+- PlanetScale: MySQL-compatible, branching, serverless
+
+### Stripe vs. PayPal vs. Square
+- Stripe: developer-friendly, API-first, global
+- PayPal: consumer trust, buyer protection, widely accepted
+- Square: POS integration, in-person + online, simple pricing
+
+### Datadog vs. New Relic vs. PagerDuty
+- Datadog: infrastructure + APM + logs, dashboards, alerts
+- New Relic: full-stack observability, APM, browser monitoring
+- PagerDuty: incident management, on-call, escalation
+
+### Postman vs. Insomnia vs. Thunder Client
+- Postman: collections, environments, mock servers, teams
+- Insomnia: lightweight, plugins, GraphQL support
+- Thunder Client: VS Code extension, simple, quick testing
+
+### Notion Tips for AI Automation
+- Click into page body before typing
+- Use / commands for block types
+- Databases can be filtered via URL parameters
+- Pages can be shared via direct link
+- Toggle blocks expand/collapse content
+
+### Google Workspace Tips for AI Automation
+- Google Docs: docs.google.com/document/create
+- Google Sheets: docs.google.com/spreadsheets/create
+- Google Slides: docs.google.com/presentation/create
+- Google Forms: docs.google.com/forms/create
+- Google Sites: sites.google.com/new
+- Google Keep: keep.google.com
+- Google Drawings: docs.google.com/drawings/create
+
+### Microsoft 365 Tips for AI Automation
+- Word: word.new or word.office.com
+- Excel: excel.new or excel.office.com
+- PowerPoint: powerpoint.new or powerpoint.office.com
+- Outlook: outlook.office.com
+- OneNote: onenote.com
+- Teams: teams.microsoft.com
+- SharePoint: yourdomain.sharepoint.com
+
+### Common UI Patterns to Recognize
+- Hamburger menu (three lines): opens navigation
+- Kebab menu (three dots): opens more options
+- Chevron (>): indicates expandable or navigation
+- Plus (+): add new item
+- Pencil (edit icon): edit mode
+- Trash (delete icon): delete item
+- Checkmark: completed or selected
+- X or Close: dismiss or close
+- Search icon (magnifying glass): opens search
+- Bell icon: notifications
+- Gear icon: settings
+- User icon: account or profile
+- Share icon: sharing options
+- Bookmark icon: save for later
+- Star icon: favorite or rate
+- Heart icon: like or favorite
+- Link icon: copy link
+- Download icon: download file
+- Upload icon: upload file
+- Refresh icon: reload or refresh
+- Filter icon: filtering options
+- Sort icon: sorting options
+- Grid icon: grid view
+- List icon: list view
+- Arrow up/down: sort direction
+- Eye icon: view or visibility
+- Lock icon: secure or private
+- Unlock icon: public or accessible
+- Cloud icon: cloud storage
+- Clock icon: history or recent
+- Calendar icon: date picker
+- Tag icon: categorization
+- Folder icon: directory
+- File icon: document
+- Image icon: picture
+- Video icon: media
+- Audio icon: sound
+- Code icon: programming
+- Database icon: data storage
+- Server icon: backend
+- Shield icon: security
+- Warning icon: caution
+- Info icon: information
+- Success icon: completed
+- Error icon: failed
+- Loading icon: processing
