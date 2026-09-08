@@ -66,6 +66,7 @@ AUTOMATION OPERATING CONTRACT:
 - Never guess destructive actions, purchases, account changes, messages, or submissions. Pause in CHAT MODE immediately before the final irreversible step unless the user explicitly asked for that exact action.
 - Keep passwords, payment data, and API keys out of chat replies and extracted results. Ask the user to take over when a secret must be entered.
 - Use extract or extract_table for structured results and preserve source links for web_search answers.
+- In CHAT MODE, use a small number of natural emojis to convey tone or emotion: celebrate success with ✅ or 🎉, show care with 🙂 or 💡, and signal problems with ⚠️ or 😕. Keep emojis purposeful and never replace important words with them.
 - Never claim an action succeeded without evidence; report the exact blocked step and safest next action when recovery fails.`;
 // ─── State ────────────────────────────────────────────────────────────────
 let apiKey = '';
@@ -1297,7 +1298,7 @@ function addUserMessage(text, screenshot) {
   // Screenshots are still sent to the AI (see handleSend/conversationHistory)
   // but are not rendered in the chat — keeps the transcript clean and avoids
   // showing page captures in the UI.
-  div.innerHTML = `<div class="msg-label">You</div><div class="msg-bubble">${escapeHtml(text)}</div>`;
+  div.innerHTML = `<div class="msg-row"><div class="msg-col"><div class="msg-name">You</div><div class="msg-bubble">${escapeHtml(text)}</div></div></div>`;
   messagesEl.appendChild(div);
   scrollToBottom();
 }
@@ -1309,16 +1310,20 @@ function addAssistantMessage(text) {
   if (!cleaned) return; // nothing to show
   const div = document.createElement('div');
   div.className = 'message assistant';
-  div.innerHTML = `<div class="msg-label">Viora</div><div class="msg-bubble">${formatMarkdown(cleaned)}</div>`;
+  div.innerHTML = `<div class="msg-row"><div class="msg-avatar" aria-hidden="true">✦</div><div class="msg-col"><div class="msg-name">Viora</div><div class="msg-bubble">${formatMarkdown(cleaned)}</div></div></div>`;
   messagesEl.appendChild(div);
   scrollToBottom();
 }
 
 // Basic markdown formatter
 function formatMarkdown(text) {
-  return text
+  const codeBlocks = [];
+  const withPlaceholders = String(text).replace(/```([\w+-]*)\n?([\s\S]*?)```/g, (_, language, code) => {
+    const index = codeBlocks.push({ language: language || 'code', code: escapeHtml(code.trim()) }) - 1;
+    return `\n@@VIORA_CODE_${index}@@\n`;
+  });
+  let formatted = withPlaceholders
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/```[\s\S]*?```/g, '')  // strip code blocks — don't show raw code to user
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -1328,6 +1333,11 @@ function formatMarkdown(text) {
     .replace(/^\- (.+)$/gm, '• $1')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
+  codeBlocks.forEach((block, index) => {
+    const code = `<div class="code-block"><div class="code-block-header"><span>${escapeHtml(block.language)}</span></div><pre><code>${block.code}</code></pre></div>`;
+    formatted = formatted.replace(`@@VIORA_CODE_${index}@@`, code);
+  });
+  return formatted;
 }
 
 // ─── Extract action plan JSON from anywhere in an AI response ─────────────────
