@@ -2731,6 +2731,7 @@ footer.input-area { position: relative; }
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
@@ -2742,6 +2743,7 @@ footer.input-area { position: relative; }
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
@@ -2962,8 +2964,8 @@ body::before {
 }
 
 .messages {
-  padding: 18px 12px 8px;
-  gap: 13px;
+  padding: 18px 12px 10px;
+  gap: 14px;
 }
 
 .welcome {
@@ -3081,18 +3083,44 @@ body::before {
 [data-theme="dark"] .welcome h2,
 [data-theme="dark"] .logo-text { color: #f1f7f5; }
 
-/* Keep the transcript airy: messages are rows, not nested cards. */
+/* Give the chat more breathing room while keeping the clean row layout. */
 .message {
   width: 100%;
+  margin: 0 0 14px;
   padding: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
 }
-.message.user .msg-row { justify-content: flex-end; }
-.message.user .msg-col { flex: 0 1 auto; max-width: 86%; }
-.message.user .msg-name { text-align: right; color: var(--text-3); }
+.message.user .msg-row {
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: flex-end;
+}
+.message.user .msg-col {
+  flex: 0 1 auto;
+  max-width: 88%;
+}
+.message.user .msg-name {
+  text-align: right;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.message.assistant .msg-row {
+  gap: 10px;
+  align-items: flex-start;
+}
+.message.assistant .msg-col {
+  max-width: calc(100% - 34px);
+}
+.message.assistant .msg-name { margin-bottom: 6px; }
 .message.assistant .msg-avatar { animation: avatarBreath 3.2s ease-in-out infinite; }
+.msg-bubble { padding: 0; }
+.message.user .msg-bubble {
+  padding: 10px 14px;
+  border-radius: 18px 18px 6px 18px;
+}
+.message.assistant .msg-bubble { padding: 2px 0 0; }
 .code-block pre {
   margin: 0;
   padding: 10px;

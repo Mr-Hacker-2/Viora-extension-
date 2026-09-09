@@ -117,7 +117,7 @@ function providerLabel(p) {
     openai: 'OpenAI', anthropic: 'Anthropic', google: 'Google', 'meta-llama': 'Meta',
     mistralai: 'Mistral', deepseek: 'DeepSeek', 'x-ai': 'xAI', cohere: 'Cohere',
     qwen: 'Qwen', perplexity: 'Perplexity', microsoft: 'Microsoft', nvidia: 'NVIDIA',
-    amazon: 'Amazon', ai21: 'AI21', groq: 'Groq',
+    amazon: 'Amazon', ai21: 'AI21', groq: 'Groq', huggingface: 'Hugging Face',
   };
   return known[p] || (p.charAt(0).toUpperCase() + p.slice(1));
 }
@@ -130,6 +130,7 @@ const PROVIDER_API_ENDPOINTS = {
   deepseek: 'https://api.deepseek.com/v1/chat/completions',
   mistralai: 'https://api.mistral.ai/v1/chat/completions',
   nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
+  huggingface: 'https://api-inference.huggingface.co/models',
 };
 
 const PROVIDER_API_KEY_HINTS = {
@@ -140,6 +141,7 @@ const PROVIDER_API_KEY_HINTS = {
   deepseek: 'Get a key at platform.deepseek.com/api_keys',
   mistralai: 'Get a key at console.mistral.ai/api-keys/',
   nvidia: 'Get a key at build.nvidia.com/explore/discover',
+  huggingface: 'Create a token at hf.co/settings/tokens',
 };
 
 const GROQ_MODELS = [
@@ -184,6 +186,11 @@ const NVIDIA_MODELS = [
   // ── Phi / Other ─────────────────────────────────────────────────────────
   { id: 'nvidia/phi-3-mini-4k-instruct', apiId: 'microsoft/phi-3-mini-4k-instruct', name: 'Phi-3 Mini 4K Instruct (NVIDIA)', provider: 'nvidia', context_length: 4096, promptPrice: 0, vision: false },
   { id: 'nvidia/phi-3-medium-128k-instruct', apiId: 'microsoft/phi-3-medium-128k-instruct', name: 'Phi-3 Medium 128K Instruct (NVIDIA)', provider: 'nvidia', context_length: 131072, promptPrice: 0, vision: false },
+];
+
+const HUGGINGFACE_MODELS = [
+  { id: 'huggingface/Qwen/Qwen2.5-3B-Instruct', apiId: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 3B Instruct (Free)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
+  { id: 'huggingface/microsoft/Phi-3-mini-4k-instruct', apiId: 'microsoft/Phi-3-mini-4k-instruct', name: 'Phi-3 Mini 4K Instruct (Free)', provider: 'huggingface', context_length: 4096, promptPrice: 0, vision: false },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -235,8 +242,9 @@ function mergeExtraModels(models) {
   const localToAdd = LOCAL_MODELS.filter(l => !existing.has(l.id));
   const groqToAdd = GROQ_MODELS.filter(g => !existing.has(g.id));
   const nvidiaToAdd = NVIDIA_MODELS.filter(n => !existing.has(n.id));
-  if (!localToAdd.length && !groqToAdd.length && !nvidiaToAdd.length) return models;
-  return [...models, ...localToAdd, ...groqToAdd, ...nvidiaToAdd].sort((a, b) => providerLabel(a.provider).localeCompare(providerLabel(b.provider)) || a.name.localeCompare(b.name));
+  const huggingFaceToAdd = HUGGINGFACE_MODELS.filter(h => !existing.has(h.id));
+  if (!localToAdd.length && !groqToAdd.length && !nvidiaToAdd.length && !huggingFaceToAdd.length) return models;
+  return [...models, ...localToAdd, ...groqToAdd, ...nvidiaToAdd, ...huggingFaceToAdd].sort((a, b) => providerLabel(a.provider).localeCompare(providerLabel(b.provider)) || a.name.localeCompare(b.name));
 }
 
 function formatContext(n) {
@@ -266,6 +274,8 @@ function renderModelList(filter = '') {
     base = base.filter(m => m.provider === 'groq');
   } else if (modelFilter === 'nvidia') {
     base = base.filter(m => m.provider === 'nvidia');
+  } else if (modelFilter === 'huggingface') {
+    base = base.filter(m => m.provider === 'huggingface');
   }
 
   const filtered = base;
@@ -385,13 +395,38 @@ document.querySelectorAll('.free-model-card').forEach(button => {
   });
 });
 
+const HF_FREE_MODEL = 'huggingface/Qwen/Qwen2.5-3B-Instruct';
+const freeHFButton = document.createElement('button');
+freeHFButton.type = 'button';
+freeHFButton.className = 'free-model-card';
+freeHFButton.dataset.freeModel = HF_FREE_MODEL;
+freeHFButton.dataset.freeKey = 'free';
+freeHFButton.innerHTML = `
+  <span class="free-model-sparkle">✦</span>
+  <span><strong>Free chat</strong><small>Qwen 2.5 3B Instruct · Hugging Face</small></span>
+`;
+freeHFButton.addEventListener('click', async () => {
+  providerOverride = null;
+  selectedModel = HF_FREE_MODEL;
+  await chrome.storage.local.set({ model: HF_FREE_MODEL });
+  apiKeyInput.value = '';
+  showKeyPrompt();
+  updateApiKeyModelBadge();
+  document.querySelectorAll('.free-model-card').forEach(card => card.classList.toggle('selected', card === freeHFButton));
+  showFeedback('Free HF model selected — add your Hugging Face token');
+});
+const freeGrid = document.getElementById('freeModelGrid');
+if (freeGrid && ![...freeGrid.querySelectorAll('.free-model-card')].some(card => card.dataset.freeModel === HF_FREE_MODEL)) {
+  freeGrid.appendChild(freeHFButton);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SECTION 4: SETTINGS PERSISTENCE (load / save)
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function loadSettings() {
   const data = await chrome.storage.local.get([
-    'apiKey', 'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia',
+    'apiKey', 'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia', 'apiKey_huggingface',
     'autoScreenshot', 'stepScreenshots', 'fastMode', 'autoConfirmSensitive', 'model',
     'clickRipple', 'elementHighlight', 'automationStatus', 'cursorPersistTime', 'visualCursor',
     'responseDetail', 'tone', 'responseLanguage', 'autoWebSearch', 'persistMemory', 'retryOnFailure', 'maxSteps'

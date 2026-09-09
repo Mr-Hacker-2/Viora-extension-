@@ -83,6 +83,7 @@ const PROVIDER_API_ENDPOINTS = {
   deepseek: 'https://api.deepseek.com/v1/chat/completions',
   mistralai: 'https://api.mistral.ai/v1/chat/completions',
   nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
+  huggingface: 'https://api-inference.huggingface.co/models',
 };
 
 // Providers whose chat endpoint accepts image_url multimodal input.
@@ -107,6 +108,7 @@ function routingProviderOf(id) {
   const prefix = id.split('/')[0];
   if (prefix === 'local') return 'local';
   if (prefix === 'groq' || prefix === 'nvidia') return prefix;
+  if (prefix === 'huggingface') return 'huggingface';
   if (prefix === 'openai-direct') return 'openai';
   if (prefix === 'deepseek-direct') return 'deepseek';
   if (prefix === 'mistralai-direct') return 'mistralai';
@@ -775,6 +777,49 @@ async function callAI(history) {
   const requestModel = model === AUTO_MODEL
     ? 'openrouter/auto'
     : (NVIDIA_REQUEST_MODELS[model] || GROQ_REQUEST_MODELS[model] || model);
+
+  if (prov === 'huggingface') {
+    const hfModel = requestModel.replace(/^huggingface\//, '');
+    const prompt = [
+      { role: 'user', content: SYSTEM_PROMPT + userPrefsPrompt() },
+      ...(runMode === 'plan'
+        ? [{ role: 'user', content: 'PLAN MODE: Do NOT take any real action. Output an action_plan describing the steps you WOULD take, but nothing will be opened or controlled. Never claim you clicked, filled, or navigated — you are only proposing a plan.' }]
+        : []),
+      ...safeHistory
+    ].map(msg => {
+      const text = Array.isArray(msg.content)
+        ? msg.content.map(part => typeof part === 'string' ? part : (part.text || '')).join('\n')
+        : String(msg.content || '');
+      return `${msg.role}: ${text}`;
+    }).join('\n\n');
+
+    const response = await fetch(`${endpoint}/${encodeURIComponent(hfModel)}`, {
+      method: 'POST',
+      signal: abortController.signal,
+      headers,
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 2500,
+          temperature: 0.6,
+          return_full_text: false,
+          do_sample: true,
+          top_p: 0.9
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const providerMessage = err.error || err.message || `HTTP ${response.status}`;
+      throw new Error(`${providerMessage} (huggingface: ${hfModel})`);
+    }
+
+    const data = await response.json();
+    if (Array.isArray(data)) return data[0]?.generated_text || '';
+    if (typeof data === 'string') return data;
+    return data?.generated_text || data?.[0]?.generated_text || '';
+  }
 
   const response = await fetch(endpoint, {
     method: 'POST',
