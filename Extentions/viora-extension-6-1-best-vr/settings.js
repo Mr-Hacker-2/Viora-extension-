@@ -395,29 +395,29 @@ document.querySelectorAll('.free-model-card').forEach(button => {
   });
 });
 
-const HF_FREE_MODEL = 'huggingface/Qwen/Qwen2.5-3B-Instruct';
-const freeHFButton = document.createElement('button');
-freeHFButton.type = 'button';
-freeHFButton.className = 'free-model-card';
-freeHFButton.dataset.freeModel = HF_FREE_MODEL;
-freeHFButton.dataset.freeKey = 'free';
-freeHFButton.innerHTML = `
+const GROQ_FREE_MODEL = 'groq/llama-3.1-8b-instant';
+const freeGroqButton = document.createElement('button');
+freeGroqButton.type = 'button';
+freeGroqButton.className = 'free-model-card';
+freeGroqButton.dataset.freeModel = GROQ_FREE_MODEL;
+freeGroqButton.dataset.freeKey = 'free';
+freeGroqButton.innerHTML = `
   <span class="free-model-sparkle">✦</span>
-  <span><strong>Free chat</strong><small>Qwen 2.5 3B Instruct · Hugging Face</small></span>
+  <span><strong>Free chat</strong><small>Llama 3.1 8B Instant · Groq</small></span>
 `;
-freeHFButton.addEventListener('click', async () => {
+freeGroqButton.addEventListener('click', async () => {
   providerOverride = null;
-  selectedModel = HF_FREE_MODEL;
-  await chrome.storage.local.set({ model: HF_FREE_MODEL });
+  selectedModel = GROQ_FREE_MODEL;
+  await chrome.storage.local.set({ model: GROQ_FREE_MODEL });
   apiKeyInput.value = '';
   showKeyPrompt();
   updateApiKeyModelBadge();
-  document.querySelectorAll('.free-model-card').forEach(card => card.classList.toggle('selected', card === freeHFButton));
-  showFeedback('Free HF model selected — add your Hugging Face token');
+  document.querySelectorAll('.free-model-card').forEach(card => card.classList.toggle('selected', card === freeGroqButton));
+  showFeedback('Free Groq model selected — add your Groq API key');
 });
 const freeGrid = document.getElementById('freeModelGrid');
-if (freeGrid && ![...freeGrid.querySelectorAll('.free-model-card')].some(card => card.dataset.freeModel === HF_FREE_MODEL)) {
-  freeGrid.appendChild(freeHFButton);
+if (freeGrid && ![...freeGrid.querySelectorAll('.free-model-card')].some(card => card.dataset.freeModel === GROQ_FREE_MODEL)) {
+  freeGrid.appendChild(freeGroqButton);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

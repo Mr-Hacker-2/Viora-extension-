@@ -48,7 +48,7 @@
   },
   "options_page": "settings.html",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://openrouter.ai https://api.groq.com https://api.openai.com https://api.deepseek.com https://api.mistral.ai https://integrate.api.nvidia.com;"
+    "extension_pages": "script-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://openrouter.ai https://api.groq.com https://api.openai.com https://api.deepseek.com https://api.mistral.ai https://integrate.api.nvidia.com https://api-inference.huggingface.co;"
   },
   "web_accessible_resources": [
     {
