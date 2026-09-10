@@ -83,7 +83,7 @@ const PROVIDER_API_ENDPOINTS = {
   deepseek: 'https://api.deepseek.com/v1/chat/completions',
   mistralai: 'https://api.mistral.ai/v1/chat/completions',
   nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
-  huggingface: 'https://api-inference.huggingface.co/models',
+  huggingface: 'https://router.huggingface.co/hf-inference/models',
 };
 
 const PROVIDER_SUPPORTS_MULTIMODAL = {
@@ -843,9 +843,13 @@ async function callAI(history) {
     }
 
     const data = await response.json();
-    if (Array.isArray(data)) return data[0]?.generated_text || '';
-    if (typeof data === 'string') return data;
-    return data?.generated_text || data?.[0]?.generated_text || '';
+    const generatedText = Array.isArray(data)
+      ? data[0]?.generated_text
+      : (typeof data === 'string' ? data : data?.generated_text || data?.[0]?.generated_text);
+    if (!generatedText || !String(generatedText).trim()) {
+      throw new Error(`Hugging Face returned no text (model: ${hfModel})`);
+    }
+    return String(generatedText);
   }
 
   const response = await fetch(endpoint, {
