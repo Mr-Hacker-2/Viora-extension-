@@ -66,6 +66,7 @@ function routingProviderOf(id) {
   // directly with a malformed OpenRouter-style model string — breaking it.)
   if (!id || id === AUTO_MODEL || !id.includes('/')) return 'openrouter';
   const prefix = id.split('/')[0];
+  if (prefix === 'local' || prefix === 'huggingface') return prefix;
   if (prefix === 'groq' || prefix === 'nvidia') return prefix;
   if (prefix === 'openai-direct') return 'openai';
   if (prefix === 'deepseek-direct') return 'deepseek';
@@ -191,6 +192,9 @@ const NVIDIA_MODELS = [
 const HUGGINGFACE_MODELS = [
   { id: 'huggingface/Qwen/Qwen2.5-3B-Instruct', apiId: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 3B Instruct (Free)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
   { id: 'huggingface/microsoft/Phi-3-mini-4k-instruct', apiId: 'microsoft/Phi-3-mini-4k-instruct', name: 'Phi-3 Mini 4K Instruct (Free)', provider: 'huggingface', context_length: 4096, promptPrice: 0, vision: false },
+  { id: 'huggingface/HuggingFaceH4/zephyr-7b-beta', apiId: 'HuggingFaceH4/zephyr-7b-beta', name: 'Zephyr 7B Beta (Free)', provider: 'huggingface', context_length: 8192, promptPrice: 0, vision: false },
+  { id: 'huggingface/TinyLlama/TinyLlama-1.1B-Chat-v1.0', apiId: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0', name: 'TinyLlama 1.1B Chat (Free)', provider: 'huggingface', context_length: 2048, promptPrice: 0, vision: false },
+  { id: 'huggingface/mistralai/Mistral-7B-Instruct-v0.3', apiId: 'mistralai/Mistral-7B-Instruct-v0.3', name: 'Mistral 7B Instruct v0.3 (Free)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -650,6 +654,7 @@ const keyTestResult = document.getElementById('keyTestResult');
 
 function guessProvider(key) {
   if (key.startsWith('gsk_')) return 'groq';
+  if (key.startsWith('hf_')) return 'huggingface';
   if (key.startsWith('sk-or-')) return 'openrouter';
   if (key.startsWith('sk-proj-') || key.startsWith('sk-svc-')) return 'openai';
   if (key.startsWith('nvapi-')) return 'nvidia';
@@ -668,6 +673,23 @@ const PROVIDER_LIST_MODELS_ENDPOINTS = {
   mistralai: 'https://api.mistral.ai/v1/models',
   nvidia: 'https://integrate.api.nvidia.com/v1/models',
 };
+
+async function checkHuggingFaceKey(key) {
+  try {
+    const res = await fetch('https://huggingface.co/api/whoami-v2', {
+      headers: { 'Authorization': `Bearer ${key}` },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return { ok: false, status: res.status };
+    return {
+      ok: true,
+      allAvailable: true,
+      models: HUGGINGFACE_MODELS.map(m => ({ id: m.id, label: m.name })),
+    };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
 
 async function checkOpenRouterKey(key) {
   // OpenRouter doesn't gate individual models per key (access depends on account
@@ -736,6 +758,7 @@ async function checkDirectProviderKey(provider, key) {
 
 async function checkKeyForProvider(provider, key) {
   if (provider === 'openrouter') return checkOpenRouterKey(key);
+  if (provider === 'huggingface') return checkHuggingFaceKey(key);
   return checkDirectProviderKey(provider, key);
 }
 
@@ -747,7 +770,7 @@ async function testKey() {
   keyTestResult.innerHTML = '<span class="key-test-loading">Checking which models this key unlocks…</span>';
 
   const guessed = guessProvider(key);
-  const candidates = guessed ? [guessed] : Object.keys({ openrouter: 1, ...PROVIDER_LIST_MODELS_ENDPOINTS });
+  const candidates = guessed ? [guessed] : Object.keys({ openrouter: 1, huggingface: 1, ...PROVIDER_LIST_MODELS_ENDPOINTS });
 
   const results = await Promise.all(
     candidates.map(async (provider) => ({ provider, ...(await checkKeyForProvider(provider, key)) }))
@@ -1248,7 +1271,7 @@ try { loadDomains(); } catch (_) {}
 // ═══════════════════════════════════════════════════════════════════════════
 
 const EXPORT_KEYS = [
-  'apiKey', 'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia',
+  'apiKey', 'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia', 'apiKey_huggingface',
   'model', 'autoScreenshot', 'stepScreenshots', 'fastMode', 'autoConfirmSensitive',
   'responseDetail', 'tone', 'responseLanguage', 'autoWebSearch', 'persistMemory', 'retryOnFailure', 'maxSteps',
   'chatSessions', 'workflowTemplates', 'scheduledTasks', 'dataVault',

@@ -47,6 +47,26 @@
   color-scheme: dark;
 }
 
+[data-theme="light"] {
+  --bg: #f3f7f6;
+  --bg-2: #e8f0ef;
+  --card: rgba(255, 255, 255, 0.88);
+  --card-border: rgba(25, 60, 65, 0.14);
+  --accent: #0f8f83;
+  --accent-2: #0b6f68;
+  --accent-glow: rgba(15, 143, 131, 0.13);
+  --green: #16845c;
+  --ink: #15323a;
+  --ink-contrast: #f6fffc;
+  --text: #18343b;
+  --text-2: #49636a;
+  --text-3: #71878b;
+  --yellow: #a66a00;
+  --red: #c54848;
+  --red-dim: rgba(197, 72, 72, 0.1);
+  color-scheme: light;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -61,6 +81,13 @@ body {
   min-height: 100vh;
   transition: background 0.2s ease, color 0.2s ease;
   background-attachment: fixed;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(circle at top right, rgba(57, 184, 196, 0.16), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(239, 111, 97, 0.1), transparent 28%),
+    linear-gradient(180deg, #f8fbfa 0%, #eaf2f1 100%);
 }
 
 ::-webkit-scrollbar { width: 7px; }
@@ -221,7 +248,23 @@ body {
 .settings-section.compact:hover {
   border-color: rgba(167, 139, 250, 0.45);
   box-shadow: 0 24px 54px rgba(4, 8, 15, 0.5), inset 0 1px 0 rgba(255,255,255,0.06);
-  transform: translateY(-1px);
+  transform: none;
+}
+
+[data-theme="light"] .settings-section.compact,
+[data-theme="light"] .api-key-panel,
+[data-theme="light"] .model-panel {
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 16px 34px rgba(39, 78, 82, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+[data-theme="light"] .free-model-card {
+  background: linear-gradient(145deg, #ffffff, #edf7f5);
+}
+[data-theme="light"] .free-model-card.selected,
+[data-theme="light"] .free-model-card:hover {
+  background: linear-gradient(145deg, #e0f7f1, #e7f1fb);
+  border-color: rgba(15, 143, 131, 0.5);
+  box-shadow: 0 8px 22px rgba(15, 143, 131, 0.14);
 }
 
 .api-key-panel {
@@ -908,6 +951,18 @@ select.field-input {
 .btn-data-mgmt:hover { background: var(--bg-2); border-color: var(--text-3); }
 
 /* ═══ RESPONSIVE ═══ */
+@media (max-width: 920px) {
+  .settings-sidebar {
+    width: 150px;
+    padding-left: 10px;
+  }
+  .settings-body {
+    padding-left: 4px;
+    padding-right: 14px;
+  }
+  .free-model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 680px) {
   .settings-layout {
     flex-direction: column;

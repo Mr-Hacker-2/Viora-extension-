@@ -46,7 +46,6 @@ RULES:
 - If [Current page] URL is chrome://, chrome-extension://, about:, or devtools://, do NOT produce an action plan with click/fill steps — those pages are browser-internal and cannot be automated. Instead tell the user in CHAT MODE to navigate to a real website first.
 - NEVER say you can't see or interact with a regular website.
 - For survey navigation: ALWAYS use {"type":"click","selector":"#NextButton","text":"Next","description":"Click Next"} — never use div[id=...] or coordinate-only steps for navigation buttons.
-  
 
 **EMOJI SUPPORT:**
 - Use appropriate emojis to enhance your responses when communicating with users. Common emojis include: 🌐 (global/web), 💻 (computer), 🔍 (search), 💡 (idea), ✅ (done), ❌ (error), ⏳ (waiting), 📸 (screenshot), 🎯 (click), 📝 (fill), 📋 (extract), 🔗 (navigation), ⚙️ (settings), 🌙 (dark mode), ☀️ (light mode), 🎨 (emoji)
@@ -68,6 +67,7 @@ AUTOMATION OPERATING CONTRACT:
 - Use extract or extract_table for structured results and preserve source links for web_search answers.
 - In CHAT MODE, use a small number of natural emojis to convey tone or emotion: celebrate success with ✅ or 🎉, show care with 🙂 or 💡, and signal problems with ⚠️ or 😕. Keep emojis purposeful and never replace important words with them.
 - Never claim an action succeeded without evidence; report the exact blocked step and safest next action when recovery fails.`;
+
 // ─── State ────────────────────────────────────────────────────────────────
 let apiKey = '';
 let model = 'local/wan2.2-animate-2-14b';
@@ -86,9 +86,6 @@ const PROVIDER_API_ENDPOINTS = {
   huggingface: 'https://api-inference.huggingface.co/models',
 };
 
-// Providers whose chat endpoint accepts image_url multimodal input.
-// NVIDIA's standard chat completions endpoint does NOT — sending an image
-// makes it error with "multimodal processing is not enabled".
 const PROVIDER_SUPPORTS_MULTIMODAL = {
   local: true,
   openrouter: true,
@@ -99,10 +96,6 @@ const PROVIDER_SUPPORTS_MULTIMODAL = {
   nvidia: false,
 };
 
-// Match settings.js routing: only ids explicitly namespaced as a native
-// direct key route to that provider's native API + apiKey_<provider> slot.
-// Everything else (including OpenRouter catalog ids like "openai/gpt-4o-mini"
-// and "openrouter/auto") routes through OpenRouter.
 function routingProviderOf(id) {
   if (!id || id === AUTO_MODEL || !id.includes('/')) return 'openrouter';
   const prefix = id.split('/')[0];
@@ -115,37 +108,35 @@ function routingProviderOf(id) {
   return 'openrouter';
 }
 
-// Resolve the API key for the currently selected model, falling back to the
-// generic `apiKey` slot and then to any provider-specific slot.
 function resolveApiKey(stored) {
   const prov = routingProviderOf(model);
   return (stored && (stored['apiKey_' + prov] || stored.apiKey)) || '';
 }
+
 let conversationHistory = [];
-let currentSessionId = null;   // id of the persisted chat session for this conversation
+let currentSessionId = null;
 let pendingScreenshot = null;
 let activeTask = null;
 let stopRequested = false;
 let abortController = null;
+let autoConfirmSensitive = false;
+let lastFailedRequestText = '';
+let lastErrorElement = null;
 let autoScreenshot = false;
 let stepScreenshots = true;
-let targetTabId = null;   // tab pinned via @ picker
+let targetTabId = null;
 let targetTabTitle = '';
 let targetTabFavicon = '';
-// The user's overarching request for the current task chain (e.g. "open google
-// docs and write about cyber security"). Used by the follow-up loop so it keeps
-// working until the FULL goal is met, not just the last sub-step's title.
 let currentGoal = '';
 
-// User preferences tuned in Settings → AI Behavior. Fed into the system prompt.
 let userPrefs = {
-  responseDetail: 'balanced',  // concise | balanced | detailed
-  tone: 'friendly',            // friendly | professional | casual | concise
-  responseLanguage: 'auto',    // auto | en | es | fr | de | pt | hi | zh | ja | ar
-  autoWebSearch: true,         // proactively search for factual questions
-  persistMemory: true,         // save & recall conversations (learn on every chat)
-  retryOnFailure: true,        // auto-retry failed automation steps
-  maxSteps: 25,                // safety cap per task
+  responseDetail: 'balanced',
+  tone: 'friendly',
+  responseLanguage: 'auto',
+  autoWebSearch: true,
+  persistMemory: true,
+  retryOnFailure: true,
+  maxSteps: 25,
 };
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────
@@ -162,10 +153,10 @@ const noKeyNotice = document.getElementById('noKeyNotice');
 const onboardingOverlay = document.getElementById('onboardingOverlay');
 const onboardingSkip = document.getElementById('onboardingSkip');
 const modeBadge = document.getElementById('modeBadge');
-const tabPicker     = document.getElementById('tabPicker');
+const tabPicker = document.getElementById('tabPicker');
 const tabPickerList = document.getElementById('tabPickerList');
 const tabPickerSearch = document.getElementById('tabPickerSearch');
-const tabBadge      = document.getElementById('tabBadge');
+const tabBadge = document.getElementById('tabBadge');
 const tabBadgeFavicon = document.getElementById('tabBadgeFavicon');
 const tabBadgeTitle = document.getElementById('tabBadgeTitle');
 const tabBadgeClear = document.getElementById('tabBadgeClear');
@@ -261,13 +252,15 @@ function toggleSidebar() {
 async function init() {
   const stored = await chrome.storage.local.get([
     'apiKey', 'model', 'autoScreenshot', 'stepScreenshots', 'runMode',
-    'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia',
+    'apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia', 'apiKey_huggingface',
+    'autoConfirmSensitive',
     'responseDetail', 'tone', 'responseLanguage', 'autoWebSearch', 'persistMemory', 'retryOnFailure', 'maxSteps'
   ]);
   model = stored.model || DEFAULT_LOCAL_MODEL;
   apiKey = resolveApiKey(stored);
   autoScreenshot = stored.autoScreenshot === true;
   stepScreenshots = stored.stepScreenshots !== false; // default true
+  autoConfirmSensitive = stored.autoConfirmSensitive === true;
   runMode = stored.runMode === 'plan' ? 'plan' : 'action';
   applyUserPrefs(stored);
 
@@ -320,6 +313,14 @@ function setupOnboardingListeners() {
   });
 }
 
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type !== 'SENSITIVE_FIELD_DETECTED') return;
+  const category = message.fieldCategory || 'sensitive';
+  const detail = message.description ? `\n\n${message.description}` : '';
+  const allowed = autoConfirmSensitive || window.confirm(`Viora wants to interact with a ${category} field.${detail}\n\nAllow this action?`);
+  chrome.runtime.sendMessage({ type: 'SECURITY_CONFIRM', tabId: message.tabId, allowed });
+});
+
 // Apply the AI Behavior preferences from storage into the live userPrefs object.
 function applyUserPrefs(stored) {
   if (!stored) return;
@@ -346,7 +347,7 @@ function userPrefsPrompt() {
 // Live-reload settings when saved from the settings page
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
-  const PROVIDER_KEY_SLOTS = ['apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia'];
+  const PROVIDER_KEY_SLOTS = ['apiKey_openrouter', 'apiKey_groq', 'apiKey_openai', 'apiKey_deepseek', 'apiKey_mistralai', 'apiKey_nvidia', 'apiKey_huggingface'];
   const keyChanged = changes.apiKey || PROVIDER_KEY_SLOTS.some(s => changes[s]);
   if (keyChanged || changes.model) {
     if (changes.model) model = changes.model.newValue || AUTO_MODEL;
@@ -364,6 +365,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
   if (changes.autoScreenshot)  autoScreenshot  = changes.autoScreenshot.newValue  === true;
   if (changes.stepScreenshots) stepScreenshots = changes.stepScreenshots.newValue !== false;
+  if (changes.autoConfirmSensitive) autoConfirmSensitive = changes.autoConfirmSensitive.newValue === true;
   if (changes.chatSessions) renderHistorySidebar();
 });
 
@@ -467,7 +469,6 @@ function setupEventListeners() {
   stopInputBtn.addEventListener('click', () => {
     if (abortController) { abortController.abort(); abortController = null; }
     stopRequested = true;
-    activeTask = null;
     hideTyping();
   });
 
@@ -588,21 +589,28 @@ function isPickerOpen() {
 }
 
 // ─── Send handler ──────────────────────────────────────────────────────────
-async function handleSend() {
-  const text = chatInput.value.trim();
+async function handleSend(retryText = null) {
+  const isRetry = typeof retryText === 'string';
+  const text = isRetry ? retryText.trim() : chatInput.value.trim();
   if (!text) return;
   if (!apiKey && routingProviderOf(model) !== 'local') {
     noKeyNotice.style.display = 'block';
     return;
   }
 
-  chatInput.value = '';
-  chatInput.style.height = 'auto';
+  if (isRetry && lastErrorElement) {
+    lastErrorElement.remove();
+    lastErrorElement = null;
+  }
+  if (!isRetry) {
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+  }
   sendBtn.disabled = true;
   hideWelcome();
 
   // Auto-capture screenshot if setting is on and no screenshot already attached
-  if (autoScreenshot && !pendingScreenshot) {
+  if (!isRetry && autoScreenshot && !pendingScreenshot) {
     try {
       const res = await new Promise(resolve =>
         chrome.runtime.sendMessage({ type: 'CAPTURE_SCREENSHOT', tabId: targetTabId }, resolve)
@@ -630,43 +638,46 @@ async function handleSend() {
     } catch (_) {}
   }
 
-  addUserMessage(text, pendingScreenshot);
+  if (!isRetry) addUserMessage(text, pendingScreenshot);
 
   // Grab page context (URL + visible text) to help AI pick accurate selectors
   let pageContext = '';
-  try {
-    const tabInfo = await new Promise(resolve =>
-      chrome.runtime.sendMessage({ type: 'GET_TAB_INFO', tabId: targetTabId }, resolve)
-    );
-    if (tabInfo?.url && !tabInfo.url.startsWith('chrome://')) {
-      const pageContent = await new Promise(resolve =>
-        chrome.runtime.sendMessage({ type: 'GET_PAGE_CONTENT', tabId: targetTabId }, resolve)
+  if (!isRetry) {
+    try {
+      const tabInfo = await new Promise(resolve =>
+        chrome.runtime.sendMessage({ type: 'GET_TAB_INFO', tabId: targetTabId }, resolve)
       );
-      const pageText = pageContent?.text?.slice(0, 1500) || '';
-      pageContext = `\n[Current page: ${tabInfo.url}]${pageText ? '\n[Page text excerpt]: ' + pageText : ''}`;
-    }
-  } catch (_) {}
-
-  // Prepare conversation message
-  const providerSupportsMultimodal = !!PROVIDER_SUPPORTS_MULTIMODAL[routingProviderOf(model)];
-  let userContent;
-  if (pendingScreenshot && providerSupportsMultimodal) {
-    userContent = [
-      { type: 'image_url', image_url: { url: pendingScreenshot } },
-      { type: 'text', text: text + pageContext }
-    ];
-  } else {
-    // NVIDIA (and any non-multimodal provider) cannot receive images — send text only.
-    if (pendingScreenshot && !providerSupportsMultimodal) pendingScreenshot = null;
-    userContent = pageContext ? text + pageContext : text;
+      if (tabInfo?.url && !tabInfo.url.startsWith('chrome://')) {
+        const pageContent = await new Promise(resolve =>
+          chrome.runtime.sendMessage({ type: 'GET_PAGE_CONTENT', tabId: targetTabId }, resolve)
+        );
+        const pageText = pageContent?.text?.slice(0, 1500) || '';
+        pageContext = `\n[Current page: ${tabInfo.url}]${pageText ? '\n[Page text excerpt]: ' + pageText : ''}`;
+      }
+    } catch (_) {}
   }
-  conversationHistory.push({ role: 'user', content: userContent });
 
-  // Clear screenshot
-  const screenshot = pendingScreenshot;
-  pendingScreenshot = null;
-  screenshotBar.style.display = 'none';
-  document.getElementById('attachScreenBtn').classList.remove('active');
+  if (!isRetry) {
+    // Prepare conversation message
+    const providerSupportsMultimodal = !!PROVIDER_SUPPORTS_MULTIMODAL[routingProviderOf(model)];
+    let userContent;
+    if (pendingScreenshot && providerSupportsMultimodal) {
+      userContent = [
+        { type: 'image_url', image_url: { url: pendingScreenshot } },
+        { type: 'text', text: text + pageContext }
+      ];
+    } else {
+      // NVIDIA (and any non-multimodal provider) cannot receive images — send text only.
+      if (pendingScreenshot && !providerSupportsMultimodal) pendingScreenshot = null;
+      userContent = pageContext ? text + pageContext : text;
+    }
+    conversationHistory.push({ role: 'user', content: userContent });
+
+    // Clear screenshot
+    pendingScreenshot = null;
+    screenshotBar.style.display = 'none';
+    document.getElementById('attachScreenBtn').classList.remove('active');
+  }
 
   showTyping('Thinking…');
   updateWorkspaceStrip('Thinking · building the safest next steps');
@@ -674,6 +685,7 @@ async function handleSend() {
   try {
     const response = await callAI(conversationHistory);
     hideTyping();
+    lastFailedRequestText = '';
 
 
     // Extract action plan from anywhere in the response (AI sometimes mixes prose + JSON)
@@ -720,7 +732,8 @@ async function handleSend() {
   } catch (err) {
     hideTyping();
     if (err.name === 'AbortError') return; // User hit stop — no error message needed
-    addAssistantMessage(`⚠️ Error: ${err.message}\n\nPlease check your API key in settings.`);
+    lastFailedRequestText = text;
+    addErrorMessage(err.message || 'The AI provider did not return a response.');
   }
 }
 
@@ -743,17 +756,31 @@ const NVIDIA_REQUEST_MODELS = {
   'nvidia/deepseek-v4-flash': 'deepseek-ai/deepseek-v4-flash-0731',
   'nvidia/nemotron-3-super': 'nvidia/nemotron-3-super-120b-a12b',
   'nvidia/deepseek-r1': 'deepseek-ai/deepseek-r1',
-  'nvidia/llama-3.3-70b-instruct': 'meta/llama-3.3-70b-instruct',
-  'nvidia/flux.1-dev': 'black-forest-labs/flux.1-dev',
   'nvidia/nemotron-3-ultra': 'nvidia/nemotron-3-ultra',
   'nvidia/nemotron-4-340b-instruct': 'nvidia/nemotron-4-340b-instruct',
+  'nvidia/llama-3.1-8b-instruct': 'meta/llama-3.1-8b-instruct',
+  'nvidia/llama-3.1-70b-instruct': 'meta/llama-3.1-70b-instruct',
+  'nvidia/llama-3.2-1b-instruct': 'meta/llama-3.2-1b-instruct',
+  'nvidia/llama-3.2-3b-instruct': 'meta/llama-3.2-3b-instruct',
+  'nvidia/llama-3.3-70b-instruct': 'meta/llama-3.3-70b-instruct',
+  'nvidia/mistral-7b-instruct-v0.3': 'mistralai/mistral-7b-instruct-v0.3',
+  'nvidia/mistral-nemo-12b-instruct': 'mistralai/mistral-nemo-12b-instruct',
+  'nvidia/gemma-2-9b-it': 'google/gemma-2-9b-it',
+  'nvidia/gemma-2-27b-it': 'google/gemma-2-27b-it',
+  'nvidia/phi-3-mini-4k-instruct': 'microsoft/phi-3-mini-4k-instruct',
+  'nvidia/phi-3-medium-128k-instruct': 'microsoft/phi-3-medium-128k-instruct',
 };
 
 const GROQ_REQUEST_MODELS = {
   'groq/llama-3.3-70b-versatile': 'llama-3.3-70b-versatile',
   'groq/llama-3.1-8b-instant': 'llama-3.1-8b-instant',
+  'groq/llama-4-scout-17b-16e-instruct': 'meta-llama/llama-4-scout-17b-16e-instruct',
   'groq/compound': 'groq/compound',
   'groq/qwen3-32b': 'qwen/qwen3-32b',
+  'groq/qwen3.6-27b': 'qwen/qwen3.6-27b',
+  'groq/gpt-oss-120b': 'openai/gpt-oss-120b',
+  'groq/gpt-oss-20b': 'openai/gpt-oss-20b',
+  'groq/allam-2-7b': 'allam-2-7b',
 };
 
 async function callAI(history) {
@@ -1113,7 +1140,6 @@ async function startTask(taskId, plan) {
   }
 
   hideTyping();
-  activeTask = null;
 
   const stopped = stopRequested;
   stopRequested = false;
@@ -1136,6 +1162,8 @@ async function startTask(taskId, plan) {
     banner.innerHTML = `✓ Task complete — ${completed} of ${steps.length} steps done`;
     await summarizeTaskResult(plan, steps, completed, null);
   }
+
+  activeTask = null;
 
   // BUG FIX: footer/card can be null if the user cleared or discarded the
   // conversation while this task was still running its async steps —
@@ -1230,6 +1258,7 @@ async function summarizeTaskResult(plan, steps, completed, error) {
 
 function requestStop() {
   stopRequested = true;
+  if (abortController) abortController.abort();
 }
 
 function discardTask(taskId) {
@@ -1356,6 +1385,19 @@ function addAssistantMessage(text) {
   const div = document.createElement('div');
   div.className = 'message assistant';
   div.innerHTML = `<div class="msg-row"><div class="msg-avatar" aria-hidden="true">✦</div><div class="msg-col"><div class="msg-name">Viora</div><div class="msg-bubble">${formatMarkdown(cleaned)}</div></div></div>`;
+  messagesEl.appendChild(div);
+  scrollToBottom();
+}
+
+function addErrorMessage(message) {
+  const div = document.createElement('div');
+  div.className = 'message assistant';
+  const provider = providerLabel(routingProviderOf(model));
+  div.innerHTML = `<div class="msg-row"><div class="msg-avatar" aria-hidden="true">!</div><div class="msg-col"><div class="msg-name">Viora</div><div class="error-banner"><div class="error-banner-icon">⚠</div><div class="error-banner-body"><div class="error-banner-title">${escapeHtml(provider)} could not answer</div><div class="error-banner-hint">Check the provider key or connection, then try again.</div><details class="error-banner-details"><summary>Technical details</summary><pre>${escapeHtml(message)}</pre></details><button class="error-banner-retry" type="button">Try again</button></div></div></div></div>`;
+  const retryBtn = div.querySelector('.error-banner-retry');
+  if (retryBtn) retryBtn.addEventListener('click', () => handleSend(lastFailedRequestText));
+  if (lastErrorElement) lastErrorElement.remove();
+  lastErrorElement = div;
   messagesEl.appendChild(div);
   scrollToBottom();
 }

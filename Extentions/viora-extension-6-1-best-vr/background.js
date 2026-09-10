@@ -318,6 +318,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === 'SENSITIVE_FIELD_DETECTED') {
+    chrome.runtime.sendMessage({
+      type: 'SENSITIVE_FIELD_DETECTED',
+      tabId: sender.tab?.id || message.tabId,
+      fieldCategory: message.fieldCategory,
+      description: message.description || ''
+    });
+    return false;
+  }
+
   if (message.type === 'SECURITY_CONFIRM') {
     resolveTab(message.tabId).then(async tab => {
       if (!tab) { sendResponse({ error: 'No tab' }); return; }
