@@ -83,7 +83,7 @@ const PROVIDER_API_ENDPOINTS = {
   deepseek: 'https://api.deepseek.com/v1/chat/completions',
   mistralai: 'https://api.mistral.ai/v1/chat/completions',
   nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
-  huggingface: 'https://router.huggingface.co/hf-inference/models',
+  huggingface: 'https://router.huggingface.co/v1/chat/completions',
 };
 
 const PROVIDER_SUPPORTS_MULTIMODAL = {
@@ -205,9 +205,6 @@ function setRunMode(mode) {
   try { chrome.storage.local.set({ runMode }); } catch (_) {}
 }
 
-// Keep already-rendered task cards consistent with the current run mode:
-// in Plan mode every Run button is disabled with a "Plan only" note; in
-// Action mode those are removed so the user can actually run the task.
 function refreshCardsForMode() {
   const cards = document.querySelectorAll('.task-card');
   cards.forEach(card => {
@@ -807,49 +804,38 @@ async function callAI(history) {
 
   if (prov === 'huggingface') {
     const hfModel = requestModel.replace(/^huggingface\//, '');
-    const prompt = [
-      { role: 'user', content: SYSTEM_PROMPT + userPrefsPrompt() },
-      ...(runMode === 'plan'
-        ? [{ role: 'user', content: 'PLAN MODE: Do NOT take any real action. Output an action_plan describing the steps you WOULD take, but nothing will be opened or controlled. Never claim you clicked, filled, or navigated — you are only proposing a plan.' }]
-        : []),
-      ...safeHistory
-    ].map(msg => {
-      const text = Array.isArray(msg.content)
-        ? msg.content.map(part => typeof part === 'string' ? part : (part.text || '')).join('\n')
-        : String(msg.content || '');
-      return `${msg.role}: ${text}`;
-    }).join('\n\n');
-
-    const response = await fetch(`${endpoint}/${encodeURIComponent(hfModel)}`, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       signal: abortController.signal,
       headers,
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 2500,
-          temperature: 0.6,
-          return_full_text: false,
-          do_sample: true,
-          top_p: 0.9
-        }
+        model: hfModel,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT + userPrefsPrompt() },
+          ...(runMode === 'plan'
+            ? [{ role: 'system', content: 'PLAN MODE: Do NOT take any real action. Output an action_plan describing the steps you WOULD take, but nothing will be opened or controlled. Never claim you clicked, filled, or navigated — you are only proposing a plan.' }]
+            : []),
+          ...safeHistory
+        ],
+        max_tokens: 2500,
+        temperature: 0.6
       })
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      const providerMessage = err.error || err.message || `HTTP ${response.status}`;
+      const providerMessage = err.error?.message || err.error || err.message || `HTTP ${response.status}`;
       throw new Error(`${providerMessage} (huggingface: ${hfModel})`);
     }
 
     const data = await response.json();
-    const generatedText = Array.isArray(data)
-      ? data[0]?.generated_text
-      : (typeof data === 'string' ? data : data?.generated_text || data?.[0]?.generated_text);
-    if (!generatedText || !String(generatedText).trim()) {
+    const reply = data?.choices?.[0]?.message?.content
+      || data?.choices?.[0]?.text
+      || data?.generated_text;
+    if (!reply || !String(reply).trim()) {
       throw new Error(`Hugging Face returned no text (model: ${hfModel})`);
     }
-    return String(generatedText);
+    return String(reply);
   }
 
   const response = await fetch(endpoint, {

@@ -131,7 +131,7 @@ const PROVIDER_API_ENDPOINTS = {
   deepseek: 'https://api.deepseek.com/v1/chat/completions',
   mistralai: 'https://api.mistral.ai/v1/chat/completions',
   nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
-  huggingface: 'https://router.huggingface.co/hf-inference/models',
+  huggingface: 'https://router.huggingface.co/v1/chat/completions',
 };
 
 const PROVIDER_API_KEY_HINTS = {
