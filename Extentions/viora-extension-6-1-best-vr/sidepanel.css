@@ -3110,7 +3110,9 @@ body::before {
   align-items: flex-end;
 }
 .message.user .msg-col {
-  flex: 0 1 auto;
+  flex: 0 1 88%;
+  width: 88%;
+  min-width: 0;
   max-width: 88%;
 }
 .message.user .msg-name {
@@ -3131,6 +3133,11 @@ body::before {
 .message.user .msg-bubble {
   padding: 10px 14px;
   border-radius: 18px 18px 6px 18px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 .message.assistant .msg-bubble { padding: 2px 0 0; }
 .screenshot-preview-wrap { min-width: 0; }

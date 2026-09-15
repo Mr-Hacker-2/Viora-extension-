@@ -863,7 +863,11 @@ async function callAI(history) {
   }
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
+  const reply = data.choices?.[0]?.message?.content;
+  if (!reply || !String(reply).trim()) {
+    throw new Error(`${prov} returned no text (model: ${requestModel})`);
+  }
+  return String(reply);
 }
 
 // ─── Task card rendering ───────────────────────────────────────────────────
