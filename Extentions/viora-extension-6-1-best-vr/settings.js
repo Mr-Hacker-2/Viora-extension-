@@ -190,11 +190,10 @@ const NVIDIA_MODELS = [
 ];
 
 const HUGGINGFACE_MODELS = [
-  { id: 'huggingface/Qwen/Qwen2.5-3B-Instruct', apiId: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 3B Instruct (Free)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
-  { id: 'huggingface/microsoft/Phi-3-mini-4k-instruct', apiId: 'microsoft/Phi-3-mini-4k-instruct', name: 'Phi-3 Mini 4K Instruct (Free)', provider: 'huggingface', context_length: 4096, promptPrice: 0, vision: false },
-  { id: 'huggingface/HuggingFaceH4/zephyr-7b-beta', apiId: 'HuggingFaceH4/zephyr-7b-beta', name: 'Zephyr 7B Beta (Free)', provider: 'huggingface', context_length: 8192, promptPrice: 0, vision: false },
-  { id: 'huggingface/TinyLlama/TinyLlama-1.1B-Chat-v1.0', apiId: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0', name: 'TinyLlama 1.1B Chat (Free)', provider: 'huggingface', context_length: 2048, promptPrice: 0, vision: false },
-  { id: 'huggingface/mistralai/Mistral-7B-Instruct-v0.3', apiId: 'mistralai/Mistral-7B-Instruct-v0.3', name: 'Mistral 7B Instruct v0.3 (Free)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
+  { id: 'huggingface/Qwen/Qwen2.5-3B-Instruct', apiId: 'Qwen/Qwen2.5-3B-Instruct:featherless-ai', name: 'Qwen 2.5 3B Instruct (Featherless)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
+  { id: 'huggingface/meta-llama/Llama-3.1-8B-Instruct', apiId: 'meta-llama/Llama-3.1-8B-Instruct:novita', name: 'Llama 3.1 8B Instruct (Novita)', provider: 'huggingface', context_length: 131072, promptPrice: 0, vision: false },
+  { id: 'huggingface/Qwen/Qwen2.5-72B-Instruct', apiId: 'Qwen/Qwen2.5-72B-Instruct:novita', name: 'Qwen 2.5 72B Instruct (Novita)', provider: 'huggingface', context_length: 32768, promptPrice: 0, vision: false },
+  { id: 'huggingface/HuggingFaceH4/zephyr-7b-beta', apiId: 'HuggingFaceH4/zephyr-7b-beta:featherless-ai', name: 'Zephyr 7B Beta (Featherless)', provider: 'huggingface', context_length: 8192, promptPrice: 0, vision: false },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════

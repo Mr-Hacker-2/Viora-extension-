@@ -780,6 +780,13 @@ const GROQ_REQUEST_MODELS = {
   'groq/allam-2-7b': 'allam-2-7b',
 };
 
+const HUGGINGFACE_REQUEST_MODELS = {
+  'huggingface/Qwen/Qwen2.5-3B-Instruct': 'Qwen/Qwen2.5-3B-Instruct:featherless-ai',
+  'huggingface/meta-llama/Llama-3.1-8B-Instruct': 'meta-llama/Llama-3.1-8B-Instruct:novita',
+  'huggingface/Qwen/Qwen2.5-72B-Instruct': 'Qwen/Qwen2.5-72B-Instruct:novita',
+  'huggingface/HuggingFaceH4/zephyr-7b-beta': 'HuggingFaceH4/zephyr-7b-beta:featherless-ai',
+};
+
 async function callAI(history) {
   abortController = new AbortController();
   const prov = routingProviderOf(model);
@@ -800,7 +807,7 @@ async function callAI(history) {
   const safeHistory = supportsMM ? history : history.map(stripImageParts);
   const requestModel = model === AUTO_MODEL
     ? 'openrouter/auto'
-    : (NVIDIA_REQUEST_MODELS[model] || GROQ_REQUEST_MODELS[model] || model);
+    : (NVIDIA_REQUEST_MODELS[model] || GROQ_REQUEST_MODELS[model] || HUGGINGFACE_REQUEST_MODELS[model] || model);
 
   if (prov === 'huggingface') {
     const hfModel = requestModel.replace(/^huggingface\//, '');
@@ -823,9 +830,11 @@ async function callAI(history) {
     });
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const providerMessage = err.error?.message || err.error || err.message || `HTTP ${response.status}`;
-      throw new Error(`${providerMessage} (huggingface: ${hfModel})`);
+      const body = await response.text().catch(() => '');
+      let err = {};
+      try { err = JSON.parse(body); } catch (_) {}
+      const providerMessage = err.error?.message || err.error || err.message || body.replace(/\s+/g, ' ').slice(0, 240) || `HTTP ${response.status}`;
+      throw new Error(`${providerMessage} (huggingface: ${hfModel}, HTTP ${response.status})`);
     }
 
     const data = await response.json();
