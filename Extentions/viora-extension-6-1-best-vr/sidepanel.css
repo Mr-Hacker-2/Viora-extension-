@@ -3133,11 +3133,10 @@ body::before {
 .message.user .msg-bubble {
   padding: 10px 14px;
   border-radius: 18px 18px 6px 18px;
-  width: fit-content;
   max-width: 100%;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
   word-break: normal;
-  overflow-wrap: anywhere;
 }
 .message.assistant .msg-bubble { padding: 2px 0 0; }
 .screenshot-preview-wrap { min-width: 0; }
