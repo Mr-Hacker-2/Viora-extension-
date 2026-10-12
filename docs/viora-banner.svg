@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Viora Extension</title>
+  <desc id="desc">A purple and blue gradient banner introducing Viora Extension, an AI assistant for your browser.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11152f"/>
+      <stop offset="52%" stop-color="#38216f"/>
+      <stop offset="100%" stop-color="#087c9d"/>
+    </linearGradient>
+    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#67e8f9"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="360" rx="28" fill="url(#bg)"/>
+  <circle cx="960" cy="120" r="95" fill="#8b5cf6" opacity=".26" filter="url(#glow)"/>
+  <circle cx="1030" cy="260" r="110" fill="#22d3ee" opacity=".18" filter="url(#glow)"/>
+  <g fill="none" stroke="#dbeafe" stroke-opacity=".18">
+    <path d="M720 0V360M800 0V360M880 0V360M960 0V360M1040 0V360M1120 0V360"/>
+    <path d="M700 60H1200M700 120H1200M700 180H1200M700 240H1200M700 300H1200"/>
+  </g>
+  <g transform="translate(785 77)">
+    <rect x="0" y="0" width="250" height="195" rx="25" fill="#111827" fill-opacity=".62" stroke="#c4b5fd" stroke-opacity=".6" stroke-width="2"/>
+    <circle cx="24" cy="24" r="5" fill="#fb7185"/><circle cx="42" cy="24" r="5" fill="#fbbf24"/><circle cx="60" cy="24" r="5" fill="#34d399"/>
+    <rect x="20" y="48" width="210" height="1.5" fill="#c4b5fd" opacity=".3"/>
+    <circle cx="53" cy="91" r="20" fill="url(#orb)"/>
+    <path d="M44 91l7 7 13-15" fill="none" stroke="#172554" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="86" y="79" width="120" height="9" rx="4.5" fill="#e9d5ff" opacity=".9"/>
+    <rect x="86" y="96" width="86" height="7" rx="3.5" fill="#a5f3fc" opacity=".65"/>
+    <rect x="20" y="128" width="210" height="43" rx="12" fill="#8b5cf6" fill-opacity=".32" stroke="#c4b5fd" stroke-opacity=".5"/>
+    <path d="M37 149h10l6-8 8 15 7-10h11" fill="none" stroke="#a5f3fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="91" y="143" width="117" height="6" rx="3" fill="#e0e7ff" opacity=".8"/>
+  </g>
+  <g transform="translate(70 73)">
+    <rect width="72" height="72" rx="22" fill="url(#orb)"/>
+    <path d="M18 19h36L36 54z" fill="#172554" opacity=".94"/>
+    <circle cx="36" cy="34" r="6" fill="#e0f2fe"/>
+  </g>
+  <text x="70" y="196" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="57" font-weight="750" fill="#ffffff">Viora Extension</text>
+  <text x="73" y="239" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" fill="#e0e7ff">Your AI workspace, right in the browser.</text>
+  <rect x="72" y="275" width="170" height="34" rx="17" fill="#ffffff" fill-opacity=".13" stroke="#c4b5fd" stroke-opacity=".5"/>
+  <text x="157" y="297" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#f5f3ff">INSTALL • EXPLORE • CREATE</text>
+</svg>
