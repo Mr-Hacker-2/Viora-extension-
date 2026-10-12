@@ -6,6 +6,8 @@
 
 </div>
 
+[🗺️ Project Roadmap](docs/ROADMAP.md)
+
 Viora Extension is a browser-extension project for accessing AI assistance from your browser. The project includes downloadable extension packages and notes describing the intended direction: a clean AI interface for questions, coding and math help, web-search citations with source favicons, image-generation support, and multimodal/automation capabilities where configured.
 
 > **Important:** Features depend on the version you install and the services configured for it. This repository contains ZIP packages; check the extension's interface and settings to see which features are available in your build.
